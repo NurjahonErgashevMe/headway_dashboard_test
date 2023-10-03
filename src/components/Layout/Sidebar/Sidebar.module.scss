@@ -1,0 +1,16 @@
+.sidebar {
+  max-width: none !important;
+  width: 100% !important;
+  z-index: 100;
+}
+.menu {
+  height: 100%;
+  display: flex;
+  // flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  &__link{
+    width: 100px;
+  }
+}
