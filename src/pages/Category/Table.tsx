@@ -45,7 +45,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
       variant: "view",
       onOk: () =>
         useDELETE.mutate(id as any, {
-          onSuccess: (suc) => {
+          onSuccess: () => {
 
             queryClient.invalidateQueries({
               queryKey: ["category"],

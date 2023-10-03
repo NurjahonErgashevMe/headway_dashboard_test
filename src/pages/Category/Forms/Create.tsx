@@ -1,40 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { memo } from "react";
-import { Button, Input, Form, message, Space, Card, Typography } from "antd";
+import { Button, Input, Form, Space, Card, Typography } from "antd";
 import classes from "./Update.module.scss";
 // import { useStore } from "../../../utils/store/store";
-import { useQueryClient } from "@tanstack/react-query";
-import { useStore } from "../../../utils/store/store";
-import useCreate from "../../../hooks/useCreate";
+// import { useQueryClient } from "@tanstack/react-query";
+// import { useStore } from "../../../utils/store/store";
+// import useCreate from "../../../hooks/useCreate";
 import { CloseOutlined } from "@ant-design/icons";
 type Props = {
   id: string;
 };
 
-const CategoryCreate: React.FC<Props> = ({ id }) => {
-  const { state } = useStore();
-  const useCREATE = useCreate(`admin/category/${id}`);
-  const item = state?.find((item) => item.id === id);
+const CategoryCreate: React.FC<Props> = () => {
+  // const { state } = useStore();
+  // const useCREATE = useCreate(`admin/category/${id}`);
+  // const item = state?.find((item) => item.id === id);
 
-  const queryClient = useQueryClient();
-  const handleSubmit = (data: any) => {
-    console.log(data);
+  // const queryClient = useQueryClient();
+  // const handleSubmit = (data: any) => {
+  //   console.log(data);
 
-    useCREATE.mutate(data, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["category"],
-        });
-        message.success("updated !");
-      },
-      onError: (err) => {
-        console.log(err);
+  //   useCREATE.mutate(data, {
+  //     onSuccess: () => {
+  //       queryClient.invalidateQueries({
+  //         queryKey: ["category"],
+  //       });
+  //       message.success("updated !");
+  //     },
+  //     onError: (err) => {
+  //       console.log(err);
 
-        message.error("error");
-      },
-    });
-  };
+  //       message.error("error");
+  //     },
+  //   });
+  // };
   const [form] = Form.useForm();
   return (
     <div className={classes.update}>
@@ -53,7 +53,7 @@ const CategoryCreate: React.FC<Props> = ({ id }) => {
             <div
               style={{ display: "flex", rowGap: 16, flexDirection: "column" }}
             >
-              {fields.map((field) => (
+              {fields.map((field : any) => (
                 <Card
                   size="small"
                   title={`Item ${field.name_uz + 1}`}

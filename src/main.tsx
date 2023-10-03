@@ -5,7 +5,6 @@ import "./index.css";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import NiceModal from "@ebay/nice-modal-react";
-import CustomLayout from "./components/Layout/index.tsx";
 import { BrowserRouter } from "react-router-dom";
 const queryClient = new QueryClient();
 

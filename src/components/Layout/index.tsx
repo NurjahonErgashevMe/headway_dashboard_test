@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Layout } from "antd";
 import Sidebar from "./Sidebar/Sidebar";
@@ -19,7 +20,7 @@ const CustomLayout: React.FC<Props> = ({ children }) => {
 
     const flatten = (node: CategoryType) => {
       const { children, ...rest } = node;
-      result.push(rest);
+      result.push(rest as any);
 
       if (children) {
         for (const child of children) {
