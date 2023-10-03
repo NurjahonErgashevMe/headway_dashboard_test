@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   const [_, setCookies] = useCookies(["token"]);
   const navigate = useNavigate();
   const onFinish = (values: FieldType) => {
-    if (values.phone === "+9980000000") {
+    if (values.phone === "+998900000000") {
       setCookies("token", token);
       navigate("/");
       message.success("loged in!");

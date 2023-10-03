@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import routes from "./route/Routes";
 import Login from "./pages/Login";
 import CustomLayout from "./components/Layout";
+import ProtectRoutes from "./route/ProtectRoutes";
 
 function App() {
   return (
@@ -13,7 +14,9 @@ function App() {
           index={item.index}
           element={
             <CustomLayout>
-              <Component></Component>
+              <ProtectRoutes>
+                <Component></Component>
+              </ProtectRoutes>
             </CustomLayout>
           }
           key={index}
