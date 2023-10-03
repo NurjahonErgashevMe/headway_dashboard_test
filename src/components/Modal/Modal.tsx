@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable react-refresh/only-export-components */
-import { Modal  } from "antd";
+import { Modal } from "antd";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 
 export default NiceModal.create(
@@ -10,7 +10,6 @@ export default NiceModal.create(
     onOk,
     okButton = true,
     cancelButton = true,
-    
   }: {
     children: React.ReactNode;
     variant: "view" | "delete" | "update";
@@ -27,15 +26,14 @@ export default NiceModal.create(
             modal.hide();
           }
           await onOk();
-          if (variant !== "view") {
-            modal.hide();
-          }
         }}
         visible={modal.visible}
         onCancel={() => modal.hide()}
         afterClose={() => modal.remove()}
-        okButtonProps={{ style: {  display: okButton ? "block" : "none" } }}
-        cancelButtonProps={{ style: { display: cancelButton ? "block" : "none" } }}
+        okButtonProps={{ style: { display: okButton ? "block" : "none" } }}
+        cancelButtonProps={{
+          style: { display: cancelButton ? "block" : "none" },
+        }}
       >
         {children}
       </Modal>

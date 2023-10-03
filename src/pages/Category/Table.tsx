@@ -14,7 +14,7 @@ import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
 import View from "./Forms/View";
 import useDelete from "../../hooks/useDelete";
-import { message } from "antd";
+import { Image, message } from "antd";
 import { CategoryType } from "../../types/category.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Update from "./Forms/Update";
@@ -42,11 +42,10 @@ const ProductTable: React.FC<Props> = ({ data }) => {
   const ModalDeleteHandler = (id: string) => {
     NiceModal.show(MyModal, {
       children: <h2>Do you want delete this?</h2>,
-      variant: "view",
+      variant: "delete",
       onOk: () =>
         useDELETE.mutate(id as any, {
           onSuccess: () => {
-
             queryClient.invalidateQueries({
               queryKey: ["category"],
             });
@@ -62,25 +61,13 @@ const ProductTable: React.FC<Props> = ({ data }) => {
     NiceModal.show(MyModal, {
       children: <Update id={id} />,
       variant: "update",
-      // onOk: () =>
-      //   useDELETE.mutate(id as any, {
-      //     onSuccess: () => {
-      //       queryClient.invalidateQueries({
-      //         queryKey: ["products"],
-      //       });
-      //       message.success("deleted!");
-      //     },
-      //     onError: () => {
-      //       message.error("error!");
-      //     },
-      //   }),
       okButton: false,
     });
   };
   return (
     <div style={TableWrapper}>
       <Table
-        dataSource={data?.map((item, index) => ({ ...item, key: index + 1 }))}
+        dataSource={data?.map((item) => ({ ...item, key: item.id }))}
       >
         <Column
           key={"name_uz"}
@@ -88,14 +75,21 @@ const ProductTable: React.FC<Props> = ({ data }) => {
           render={(record: CategoryType) => <p>{record.name_uz}</p>}
         ></Column>
         <Column
-          title={"name_ru"}
-          key={"Rame ru"}
+          key={"name_ru"}
+          title={"Rame ru"}
           render={(record: CategoryType) => <p>{record.name_ru}</p>}
         ></Column>
         <Column
           key={"name_lat"}
           title={"Name lat"}
           render={(record: CategoryType) => <p>{record.name_lat}</p>}
+        ></Column>
+        <Column
+          key={"image"}
+          title={"Image"}
+          render={(record: CategoryType) => (
+            <Image src={record.image_url} alt="image"></Image>
+          )}
         ></Column>
 
         <Column

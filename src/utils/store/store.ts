@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { CategoryType } from "../../types/category.type";
 
 type CategoryStore = {
-  state: any[] | null;
+  state: CategoryType[] | null;
   setState: (data: CategoryType[]) => void;
 };
 

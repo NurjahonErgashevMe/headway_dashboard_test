@@ -7,6 +7,8 @@ import classes from "./Update.module.scss";
 // import { useStore } from "../../../utils/store/store";
 import { ProductType } from "../../../types/product.type";
 import useUpdate from "../../../hooks/useUpdate";
+import { useStore } from "../../../utils/store/store";
+import { CategoryType } from "../../../types/category.type";
 type Props = {
   data: ProductType;
   owner: string;
@@ -16,12 +18,14 @@ type Props = {
 const { TextArea } = Input;
 
 const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
-  // const { state } = useStore();
+  const { state } = useStore();
   const useUPDATE = useUpdate(`admin/product/${id}`);
-
+  const categories: CategoryType[] = state?.filter(
+    (item) => item.id === data.category_id
+  ) || [];
   const handleSubmit = (data: any) => {
     console.log(data);
-    
+
     useUPDATE.mutate(data, {
       onSuccess: () => message.success("updated !"),
       onError: (err) => {
@@ -107,6 +111,27 @@ const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
             placeholder="Please select"
             defaultValue={data?.characteristic?.color}
             style={{ width: "100%" }}
+          />
+        </Form.Item>
+        <Form.Item<ProductType>
+          label="Categories"
+          name={"category_id"}
+          initialValue={categories.map((i) => i.name_uz)}
+        >
+          <Select
+            mode="tags"
+            placeholder="Please select"
+            defaultValue={data?.characteristic?.color}
+            style={{ width: "100%" }}
+            options={
+              state?.map((i) => ({
+                key: i.id,
+                label: i.name_uz,
+                value: i.id,
+                disabled: true,
+              })) || []
+            }
+            maxLength={1}
           />
         </Form.Item>
         <Form.Item<ProductType>

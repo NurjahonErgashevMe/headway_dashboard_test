@@ -8,4 +8,5 @@ export type UserTypes = {
   is_deleted: boolean;
   created_at: string;
   status: number;
+  email : string
 };

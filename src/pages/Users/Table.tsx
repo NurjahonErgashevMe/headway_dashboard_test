@@ -7,7 +7,7 @@ import Space from "antd/es/space";
 import Button from "antd/es/button";
 import Tooltip from "antd/es/tooltip";
 import {
-  EditOutlined,
+  // EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
@@ -19,6 +19,7 @@ import useDelete from "../../hooks/useDelete";
 import { message } from "antd";
 import { UserTypes as UserType } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
+// import Update from "./Forms/Update";
 type Props = {
   data: UserType[];
 };
@@ -29,7 +30,6 @@ const TableWrapper: React.CSSProperties = {
 
 const { Column } = Table;
 
-
 const UserTable: React.FC<Props> = ({ data }) => {
   const useDELETE = useDelete(`admin/users`);
   const queryClient = useQueryClient();
@@ -37,12 +37,9 @@ const UserTable: React.FC<Props> = ({ data }) => {
     const finded: UserType = data.find((item) => item.id == id) || data[0];
 
     NiceModal.show(MyModal, {
-      children: (
-        <UserView
-          data={finded}
-        />
-      ),
+      children: <UserView data={finded} />,
       variant: "view",
+      cancelButton: false,
     });
   };
   const ModalDeleteHandler = (id: string) => {
@@ -63,10 +60,17 @@ const UserTable: React.FC<Props> = ({ data }) => {
         }),
     });
   };
+  // const ModalUpdateandler = (id: string) => {
+  //   const finded: UserType = data.find((item) => item.id == id) || data[0];
+  //   NiceModal.show(MyModal, {
+  //     children: <Update data={finded} id={id} />,
+  //     variant: "update",
+  //     okButton: false,
+  //   });
+  // };
   return (
     <div style={TableWrapper}>
       <Table
-
         dataSource={data?.map((item, index) => ({ ...item, key: index + 1 }))}
       >
         <Column
@@ -94,9 +98,7 @@ const UserTable: React.FC<Props> = ({ data }) => {
         <Column
           key={"role"}
           title={"Role"}
-          render={(record: UserType) => (
-            <Tag color="red">{record.role}</Tag>
-          )}
+          render={(record: UserType) => <Tag color="red">{record.role}</Tag>}
         ></Column>
         <Column
           key={"status"}
@@ -109,11 +111,14 @@ const UserTable: React.FC<Props> = ({ data }) => {
           title={"Actions"}
           render={(record: UserType) => (
             <Space>
-              <Tooltip title="edit">
-                <Button shape="circle">
+              {/* <Tooltip title="edit">
+                <Button
+                  shape="circle"
+                  onClick={() => ModalUpdateandler(record.id)}
+                >
                   <EditOutlined />
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="delete">
                 <Button
                   shape="circle"

@@ -6,4 +6,5 @@ export type CategoryType = {
   id: string;
   parent_id: string | null;
   children : CategoryType[]
+  image_url : string;
 };
