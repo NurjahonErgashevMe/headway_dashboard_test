@@ -1,28 +1,46 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-refresh/only-export-components */
 import React from "react";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Menu, Button, Space } from "antd";
 import classes from "./Sidebar.module.scss";
 import routes from "../../../route/Routes";
-import { useLocation } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { UserTypes } from "../../../types/user.type";
+import CustomAvatar from "./Avatar/Avatar";
+import { useCookies } from "react-cookie";
 const { Header } = Layout;
+
+type Props = {
+  user: UserTypes;
+};
 
 const siderStyle: React.CSSProperties = {
   textAlign: "center",
   color: "#fff",
   height: "100px",
-
+  display: "flex",
   position: "fixed",
   top: 0,
 };
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<Props> = ({ user }) => {
   const location = useLocation();
+  const [cookies, setCookies, removeCookie] = useCookies(["token", "phone"]);
+  const navigate = useNavigate();
+  const handlerLogOut = () => {
+    removeCookie("phone");
+    removeCookie("token");
+    navigate("/login");
+  };
 
   return (
-    <Header
-      className={classes.sidebar}
-      style={siderStyle}
-    >
+    <Header className={classes.sidebar} style={siderStyle}>
+      <Space size={30}>
+        <CustomAvatar user={user} />
+        <Button color="red" onClick={handlerLogOut}>
+          Logout
+        </Button>
+      </Space>
       <Menu
         theme="dark"
         mode="inline"
@@ -47,4 +65,4 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

@@ -9,9 +9,17 @@ type Props = {
   id: string;
 };
 
-const CategoryView: React.FC<Props> = ({  id }) => {
-  const { state } = useStore();
-  const item: CategoryType = state?.find((item) => item.id === id);
+const CategoryView: React.FC<Props> = ({ id }) => {
+  const { category } = useStore();
+  const item:
+    | CategoryType
+    | { name_uz: string; name_ru: string; name_lat: string } = category?.find(
+    (item) => item.id === id
+  ) || {
+    name_uz: "",
+    name_ru: "",
+    name_lat: "",
+  };
   return (
     <div className={classes.view}>
       <Input value={item?.name_uz} placeholder="Name uz"></Input>

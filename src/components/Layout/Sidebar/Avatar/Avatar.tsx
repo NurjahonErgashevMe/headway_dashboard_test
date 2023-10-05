@@ -1,19 +1,21 @@
+/* eslint-disable react-refresh/only-export-components */
 import { UserOutlined } from "@ant-design/icons";
 import React from "react";
-import { Avatar, Space } from "antd";
+import { Avatar } from "antd";
+import { UserTypes } from "../../../../types/user.type";
+import classes from "./Avatar.module.scss";
 
 type Props = {
-  first_name: string;
-  last_name: string;
+  user: UserTypes;
 };
 
-const App: React.FC<Props> = ({ first_name, last_name }) => (
-  <Space wrap size={16}>
+const CustomAvatar: React.FC<Props> = ({ user }) => (
+  <div className={classes.avatar}>
     <Avatar size="large" icon={<UserOutlined />} />
-    <span>
-      {first_name} {last_name}
-    </span>
-  </Space>
+    <div className={classes.user_name}>
+      <p>{user.first_name}</p> <p>{user.last_name}</p>
+    </div>
+  </div>
 );
 
-export default App;
+export default React.memo(CustomAvatar);

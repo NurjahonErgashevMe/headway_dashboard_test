@@ -22,6 +22,7 @@ function Category() {
     const addHandler = () => {
       NiceModal.show(MyModal, {
         children: <Add />,
+        variant : "add",
         okButton: false,
       });
     };

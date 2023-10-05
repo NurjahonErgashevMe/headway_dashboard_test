@@ -10,23 +10,28 @@ import useUpdate from "../../../hooks/useUpdate";
 import { useStore } from "../../../utils/store/store";
 import { CategoryType } from "../../../types/category.type";
 type Props = {
-  data: ProductType;
+  data: Omit<ProductType, "image_url"> & { image: string };
   owner: string;
   id: string;
 };
 
 const { TextArea } = Input;
 
-const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
-  const { state } = useStore();
-  const useUPDATE = useUpdate(`admin/product/${id}`);
-  const categories: CategoryType[] = state?.filter(
-    (item) => item.id === data.category_id
-  ) || [];
+const ProductUpdate: React.FC<Props> = ({ data, id }) => {
+  const { category } = useStore();
+  const useUPDATE = useUpdate(`product/${id}`);
+  const categories: CategoryType =
+    category?.find((item) => item.id === data.category_id) || ([] as any);
   const handleSubmit = (data: any) => {
-    console.log(data);
+    const datas = {
+      ...data,
+      characteristic: {},
+      price: Number(data.price),
+      sale_price: Number(data.price),
+    } satisfies ProductType;
+    console.log(datas);
 
-    useUPDATE.mutate(data, {
+    useUPDATE.mutate(datas, {
       onSuccess: () => message.success("updated !"),
       onError: (err) => {
         console.log(err);
@@ -70,35 +75,62 @@ const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
         <Form.Item<ProductType>
           label="Price"
           name="price"
-          initialValue={data?.price}
+          initialValue={String(data?.price)
+            .split(".00")
+            .join("")
+            .replace(",", "")
+            .replace("$", "")}
         >
-          <Input defaultValue={data?.price} placeholder="Price"></Input>
+          <Input
+            defaultValue={String(data?.price)
+              .split(".00")
+              .join("")
+              .replace(",", "")
+              .replace("$", "")}
+            placeholder="Price"
+          ></Input>
         </Form.Item>
         <Form.Item<ProductType>
           label="Sale price"
           name="sale_price"
-          initialValue={data?.sale_price}
+          initialValue={String(data?.sale_price)
+            .split(".00")
+            .join("")
+            .replace(",", "")
+            .replace("$", "")}
         >
           <Input
-            defaultValue={data?.sale_price}
+            defaultValue={String(data?.sale_price)
+              .split(".00")
+              .join("")
+              .replace(",", "")
+              .replace("$", "")}
             placeholder="Sale Price"
           ></Input>
         </Form.Item>
         <Form.Item<ProductType>
-          label="Owner"
-          name="owner_id"
-          initialValue={data?.sale_price}
+          label="Count"
+          name="count"
+          initialValue={Number(data.count)}
         >
-          <Input defaultValue={owner} placeholder="Owner"></Input>
+          <Input defaultValue={data.count} placeholder="Sale Price"></Input>
+        </Form.Item>
+        <Form.Item<ProductType>
+          label="Image url"
+          name="image_url"
+          initialValue={data?.image}
+        >
+          <Input defaultValue={data?.image} placeholder="Image url"></Input>
         </Form.Item>
         <Form.Item<ProductType>
           label="Created At"
           name={"created_at"}
-          initialValue={DateUTC(data?.created_at)}
+          initialValue={data?.created_at}
         >
           <Input
-            value={DateUTC(data?.created_at)}
             placeholder="created at"
+            disabled
+            value={DateUTC(data?.created_at)}
           ></Input>
         </Form.Item>
         <Form.Item<ProductType>
@@ -107,7 +139,6 @@ const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
           initialValue={data?.characteristic?.color}
         >
           <Select
-            mode="tags"
             placeholder="Please select"
             defaultValue={data?.characteristic?.color}
             style={{ width: "100%" }}
@@ -116,21 +147,15 @@ const ProductUpdate: React.FC<Props> = ({ data, owner, id }) => {
         <Form.Item<ProductType>
           label="Categories"
           name={"category_id"}
-          initialValue={categories.map((i) => i.name_uz)}
+          initialValue={categories.id}
         >
           <Select
-            mode="tags"
             placeholder="Please select"
             defaultValue={data?.characteristic?.color}
             style={{ width: "100%" }}
-            options={
-              state?.map((i) => ({
-                key: i.id,
-                label: i.name_uz,
-                value: i.id,
-                disabled: true,
-              })) || []
-            }
+            options={[
+              { label: categories.name_uz, value: categories.id, key: 1 },
+            ]}
             maxLength={1}
           />
         </Form.Item>

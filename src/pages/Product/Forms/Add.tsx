@@ -1,33 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { Button, Form, Input, Select, message } from "antd";
+import { Button, Form, Input, message, InputNumber } from "antd";
 import classes from "./Add.module.scss";
-import { CategoryType } from "../../../types/category.type";
-import { useStore } from "../../../utils/store/store";
+import { ProductType } from "../../../types/product.type";
 import useCreate from "../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
-import useGET from "../../../hooks/useGET";
-import { flatten } from "../../../helpers";
+import { useStore } from "../../../utils/store/store";
+import { Select } from "antd/lib";
 
 const Add: React.FC = () => {
-  const { category, setCategory } = useStore();
-  const categories = useGET<CategoryType>(["category"], "category");
-  const useCREATE = useCreate(`admin/category`);
+  const { category } = useStore();
+  const useCREATE = useCreate(`product`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  React.useEffect(() => {
-    setCategory(flatten(categories.data?.data as any));
-  }, [categories.data?.data, categories.status, setCategory]);
-
   const handleSubmit = (data: any) => {
-    useCREATE.mutate(data, {
+    const datas = { ...data, characteristic: { color: data.color } };
+
+    useCREATE.mutate(datas, {
       onSuccess: async () => {
-        await categories.refetch();
-        console.log(categories?.data?.data, "categories");
         queryClient.invalidateQueries({
-          queryKey: ["category"],
+          queryKey: ["products"],
         });
-        setCategory(flatten(categories.data?.data as any));
         message.success("added!");
         form.resetFields();
       },
@@ -46,37 +39,37 @@ const Add: React.FC = () => {
         className={classes.form}
         form={form}
       >
-        <Form.Item<CategoryType>
+        <Form.Item<ProductType>
           name={"name_uz"}
           label={"Name uz"}
           rules={[{ required: true, message: "Name uz is required" }]}
         >
           <Input></Input>
         </Form.Item>
-        <Form.Item<CategoryType>
+        <Form.Item<ProductType>
           rules={[{ required: true, message: "Name ru is required" }]}
           name={"name_ru"}
           label={"Name ru"}
         >
           <Input></Input>
         </Form.Item>
-        <Form.Item<CategoryType>
+        <Form.Item<ProductType>
           name={"name_lat"}
           label={"Name lat"}
           rules={[{ required: true, message: "Name lat is required" }]}
         >
           <Input></Input>
         </Form.Item>
-        <Form.Item<CategoryType>
+        <Form.Item<ProductType>
           name={"image_url"}
           label={"Image url"}
           initialValue={""}
         >
           <Input defaultValue={""}></Input>
         </Form.Item>
-        <Form.Item<CategoryType>
-          name={"parent_id"}
-          label={"Parent category"}
+        <Form.Item<ProductType>
+          name={"category_id"}
+          label={"Category"}
           initialValue={null}
         >
           <Select
@@ -90,6 +83,37 @@ const Add: React.FC = () => {
               })) || []
             }
           />
+        </Form.Item>
+        <Form.Item<ProductType> name={"price"} label={"Price"} initialValue={0}>
+          <InputNumber defaultValue={0}></InputNumber>
+        </Form.Item>
+        <Form.Item<ProductType>
+          name={"sale_price"}
+          label={"Sale price"}
+          initialValue={0}
+        >
+          <InputNumber defaultValue={0}></InputNumber>
+        </Form.Item>
+        <Form.Item<ProductType> name={"count"} label={"Count"} initialValue={0}>
+          <InputNumber defaultValue={0}></InputNumber>
+        </Form.Item>
+        <Form.Item<ProductType>
+          name={"color" as any}
+          label={"Color"}
+          initialValue={""}
+        >
+          <Select
+            placeholder="Please select"
+            style={{ width: "100%" }}
+            options={["red", "white", "blue", "gray"].map((item) => ({
+              label: item,
+              key: item,
+              value: item,
+            }))}
+          />
+        </Form.Item>
+        <Form.Item<ProductType> name={"description"} label="Description">
+          <Input.TextArea></Input.TextArea>
         </Form.Item>
         <Button htmlType="submit">add</Button>
       </Form>

@@ -13,9 +13,9 @@ type Props = {
 };
 
 const CategoryUpdate: React.FC<Props> = ({ id }) => {
-  const { state } = useStore();
+  const { category } = useStore();
   const useUPDATE = useUpdate(`admin/category/${id}`);
-  const item = state?.find((item) => item.id === id);
+  const item = category?.find((item) => item.id === id);
 
   const queryClient = useQueryClient();
   const handleSubmit = (data: any) => {

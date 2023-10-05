@@ -4,8 +4,8 @@ import React from "react";
 import { Button, Form, Input, message } from "antd";
 import classes from "./index.module.scss";
 import { useCookies } from "react-cookie";
-import { token } from "../../helpers";
 import { useNavigate } from "react-router-dom";
+import useCreate from "../../hooks/useCreate";
 
 const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
@@ -16,15 +16,22 @@ type FieldType = {
 };
 
 const Login: React.FC = () => {
-  const [_, setCookies] = useCookies(["token"]);
+  const [_, setCookies] = useCookies(["token", "phone"]);
+  const usePOST = useCreate("user/login");
   const navigate = useNavigate();
   const onFinish = (values: FieldType) => {
-    if (values.phone === "+998900000000") {
-      setCookies("token", token);
-      navigate("/");
-      message.success("loged in!");
-    } else {
-      message.error("error!");
+    try {
+      usePOST.mutate(values as any, {
+        onSuccess: (data) => {
+          setCookies("phone", String(values.phone));
+          setCookies("token", data.data);
+          navigate("/");
+          return message.success("logged in!");
+        },
+        onError: () => message.error("error  login"),
+      });
+    } catch (err) {
+      console.log(err);
     }
   };
 

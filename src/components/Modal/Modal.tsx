@@ -12,7 +12,7 @@ export default NiceModal.create(
     cancelButton = true,
   }: {
     children: React.ReactNode;
-    variant: "view" | "delete" | "update";
+    variant: "view" | "delete" | "update" | "add";
     onOk: (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
     okButton: boolean;
     cancelButton: boolean;
@@ -22,10 +22,10 @@ export default NiceModal.create(
       <Modal
         title={variant}
         onOk={async () => {
-          if (variant == "view") {
+          await onOk();
+          if (variant == "view" || variant == "add") {
             modal.hide();
           }
-          await onOk();
         }}
         visible={modal.visible}
         onCancel={() => modal.hide()}

@@ -13,7 +13,7 @@ type Props = {
 const { TextArea } = Input;
 
 const ProductView: React.FC<Props> = ({ data, owner }) => {
-  const { state } = useStore();
+  const { category } = useStore();
 
   return (
     <div className={classes.view}>
@@ -25,15 +25,13 @@ const ProductView: React.FC<Props> = ({ data, owner }) => {
       <Input value={owner} placeholder="Owner"></Input>
       <Input value={DateUTC(data?.created_at)} placeholder="created at"></Input>
       <Select
-        mode="tags"
         placeholder="Please select"
         value={data?.characteristic?.color}
         style={{ width: "100%" }}
       />
       <Select
-        mode="tags"
         placeholder="Please select"
-        value={state?.find((item) => item.id == data.category_id).name_uz}
+        value={category?.find((item) => item.id == data.category_id)?.name_uz || []}
         style={{ width: "100%" }}
       />
       <TextArea value={data?.description} rows={4} />

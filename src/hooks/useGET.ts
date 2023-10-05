@@ -5,6 +5,7 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { Instance } from "../utils/axios";
+import { useCookies } from "react-cookie";
 
 type OptionsType = Omit<
   UseQueryOptions<any, any, any, any>,
@@ -15,14 +16,14 @@ const useGET = <T>(
   keys: string | string[],
   url: string,
   options?: OptionsType
-) : UseQueryResult<{data : T[]}> => {
+): UseQueryResult<{ data: T[] }> => {
+  const [cookie] = useCookies(["token"]);
   return useQuery(
     keys,
     () =>
       Instance.get(url, {
         headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MTU1NzUzMDhkYzY0MDNjNzM1NmY0NSIsImlhdCI6MTY5NTg5NzUwOX0.NHotyJ2YIqHogyyA8PHO_PeAMl5bJhnIQihTMZiZBeY",
+          Authorization: cookie.token,
         },
       }),
     options
