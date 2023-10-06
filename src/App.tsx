@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import routes from "./route/Routes";
 import Login from "./pages/Login";
 import CustomLayout from "./components/Layout";
-import ProtectRoutes from "./route/ProtectRoutes";
 import { useCookies } from "react-cookie";
 
 function App() {
@@ -17,9 +16,7 @@ function App() {
           element={
             cookies.token ? (
               <CustomLayout>
-                <ProtectRoutes>
-                  <Component></Component>
-                </ProtectRoutes>
+                <Component></Component>
               </CustomLayout>
             ) : (
               <Navigate to="/login" replace></Navigate>
