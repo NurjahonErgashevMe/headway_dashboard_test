@@ -7,7 +7,7 @@ type Props = {
 
 const ProtectRoutes: React.FC<Props> = ({ children }): JSX.Element => {
   const [cookies] = useCookies(["token"]);
-  if (!cookies.token) {
+  if (cookies.token) {
     return <Navigate to={"/login"} />;
   }
   return children;
