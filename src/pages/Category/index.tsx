@@ -10,7 +10,7 @@ import NiceModal from "@ebay/nice-modal-react";
 import Add from "./Forms/Add";
 import MyModal from "../../components/Modal/Modal";
 function Category() {
-  const category = useGET<CategoryType>(["category"], "/category");
+  const category = useGET<CategoryType>(["category"], "/category/parents");
   if (category.isLoading) {
     return <Loader />;
   }

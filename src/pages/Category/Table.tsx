@@ -68,6 +68,12 @@ const ProductTable: React.FC<Props> = ({ data }) => {
     <div style={TableWrapper}>
       <Table
         dataSource={data?.map((item) => ({ ...item, key: item.id }))}
+        expandable={{
+          // expandedRowRender: (record: CategoryType) => (
+          //   // <p style={{ margin: 0 }}>{record.}</p>
+          // ),
+          // rowExpandable: (record) => record.name !== "Not Expandable",
+        }}
       >
         <Column
           key={"name_uz"}

@@ -17,8 +17,7 @@ function Products() {
     "/admin/product/list"
   );
   const users = useGET<UserTypes>(["users"], "/admin/users/list");
-  const category = useGET(["category"], "/category");
-  if (isLoading || users.isLoading || category.isLoading) {
+  if (isLoading || users.isLoading ) {
     return <Loader />;
   }
   if (isError) {

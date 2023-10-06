@@ -25,7 +25,7 @@ const siderStyle: React.CSSProperties = {
 
 const Sidebar: React.FC<Props> = ({ user }) => {
   const location = useLocation();
-  const [cookies, setCookies, removeCookie] = useCookies(["token", "phone"]);
+  const [, , removeCookie] = useCookies(["token", "phone"]);
   const navigate = useNavigate();
   const handlerLogOut = () => {
     removeCookie("phone");

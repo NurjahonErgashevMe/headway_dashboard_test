@@ -11,7 +11,7 @@ import { flatten } from "../../../helpers";
 
 const Add: React.FC = () => {
   const { category, setCategory } = useStore();
-  const categories = useGET<CategoryType>(["category"], "category");
+  const categories = useGET<CategoryType>(["category"], "category/parents");
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();

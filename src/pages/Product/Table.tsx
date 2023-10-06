@@ -169,7 +169,9 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
         <Column
           key={"image"}
           title={"Image"}
-          render={(record: ProductType) => (
+          render={(
+            record: Omit<ProductType, "image_url"> & { image: string }
+          ) => (
             <div style={ImageWrapperStyles}>
               <Image
                 width={100}

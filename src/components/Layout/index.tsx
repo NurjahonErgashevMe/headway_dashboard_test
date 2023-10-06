@@ -17,7 +17,7 @@ type Props = {
 };
 
 const CustomLayout: React.FC<Props> = ({ children }) => {
-  const categories = useGET<CategoryType>(["category"], "/category");
+  const categories = useGET<CategoryType>(["category"], "/category/parents");
   const users = useGET<UserTypes>(["users"], "admin/users/list");
   const [cookies] = useCookies(["phone"]);
   const { category, setCategory } = useStore();
