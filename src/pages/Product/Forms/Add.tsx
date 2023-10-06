@@ -60,7 +60,7 @@ const Add: React.FC = () => {
         >
           <Input></Input>
         </Form.Item>
-        <Form.Item<ProductType>
+        <Form.Item<Omit<ProductType, "image"> & { image_url: string }>
           name={"image_url"}
           label={"Image url"}
           initialValue={""}

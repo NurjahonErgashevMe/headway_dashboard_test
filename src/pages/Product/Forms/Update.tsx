@@ -115,7 +115,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
         >
           <Input defaultValue={data.count} placeholder="Sale Price"></Input>
         </Form.Item>
-        <Form.Item<ProductType>
+        <Form.Item<Omit<ProductType, "image"> & { image_url: string }>
           label="Image url"
           name="image_url"
           initialValue={data?.image}
