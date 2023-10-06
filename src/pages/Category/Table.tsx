@@ -37,6 +37,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
     NiceModal.show(MyModal, {
       children: <View data={finded} id={id} />,
       variant: "view",
+      okButton : false
     });
   };
   const ModalDeleteHandler = (id: string) => {
