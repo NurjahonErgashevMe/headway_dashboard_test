@@ -15,5 +15,4 @@ export const useStore = create<CategoryStore>()((set) => ({
   setCategory: (data) => set(() => ({ category: data })),
   users: null,
   setUsers: (data) => set(() => ({ users: data })),
-  
 }));

@@ -74,6 +74,7 @@ const Add: React.FC = () => {
         >
           <Select
             placeholder="Please select"
+            allowClear
             style={{ width: "100%" }}
             options={
               category?.map((item) => ({

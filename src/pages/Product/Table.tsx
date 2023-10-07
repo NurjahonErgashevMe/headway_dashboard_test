@@ -56,6 +56,7 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
         />
       ),
       variant: "view",
+      okButton : false
     });
   };
   const ModalDeleteHandler = (id: string) => {

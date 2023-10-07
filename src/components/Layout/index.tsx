@@ -9,6 +9,7 @@ import { UserTypes } from "../../types/user.type";
 import Loader from "../Loader/Loader";
 import { useCookies } from "react-cookie";
 import flattenTree from "../../helpers/flutten";
+import { Instance } from "../../utils/axios";
 
 const { Content } = Layout;
 
@@ -17,14 +18,19 @@ type Props = {
 };
 
 const CustomLayout: React.FC<Props> = ({ children }) => {
-  const categories = useGET<CategoryType>(["category"], "/category/parents");
-  const users = useGET<UserTypes>(["users"], "admin/users/list");
+  const categories = useGET<CategoryType[]>(["category"], "/category/parents");
+  const users = useGET<UserTypes[]>(["users"], "admin/users/list");
   const [cookies] = useCookies(["phone"]);
   const { category, setCategory } = useStore();
-
+  
   if (categories.isSuccess && category == null) {
-    setCategory(flattenTree(categories?.data?.data));
+    for (const item of categories.data.data) {
+      Instance.get(`/category/children/${item.id}`).then((data) =>
+        setCategory([...flattenTree(data.data), ...categories.data.data])
+      );
+    }
   }
+
   if (categories.isSuccess && users.isSuccess) {
     const user: UserTypes = users.data.data.find(
       (item) => item.phone === String(cookies.phone)

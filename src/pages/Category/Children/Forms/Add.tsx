@@ -2,17 +2,18 @@
 import React from "react";
 import { Button, Form, Input, Select, message } from "antd";
 import classes from "./Add.module.scss";
-import { CategoryType } from "../../../types/category.type";
-import { useStore } from "../../../utils/store/store";
-import useCreate from "../../../hooks/useCreate";
+import { CategoryType } from "../../../../types/category.type";
+import { useStore } from "../../../../utils/store/store";
+import useCreate from "../../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
-import useGET from "../../../hooks/useGET";
-import { flatten } from "../../../helpers";
-import { Instance } from "../../../utils/axios";
+import useGET from "../../../../hooks/useGET";
+import { flatten } from "../../../../helpers";
+import { Instance } from "../../../../utils/axios";
+import flattenTree from "../../../../helpers/flutten";
 
 const Add: React.FC = () => {
-  const { category } = useStore();
-  const categories = useGET<CategoryType>(["category"], "category/parents");
+  const { category, setCategory } = useStore();
+  const categories = useGET<CategoryType[]>(["category"], "category/parents");
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
@@ -24,7 +25,13 @@ const Add: React.FC = () => {
   //       );
   //     }
   //   }
-  // }, [categories.data?.data, categories.status, setCategory]);
+  // }, [
+  //   categories?.data?.data,
+  //   categories.isSuccess,
+  //   categories.status,
+  //   category,
+  //   setCategory,
+  // ]);
 
   const handleSubmit = (data: any) => {
     useCREATE.mutate(data, {
@@ -34,7 +41,14 @@ const Add: React.FC = () => {
         queryClient.invalidateQueries({
           queryKey: ["category"],
         });
-        // setCategory(flatten(categories.data?.data as any));
+        if (categories.isSuccess && category == null) {
+          for (const item of categories.data.data) {
+            Instance.get(`/category/children/${item.id}`).then((data) =>
+              setCategory([...flattenTree(data.data), ...categories.data.data])
+            );
+          }
+        }
+
         message.success("added!");
         form.resetFields();
       },
@@ -90,11 +104,13 @@ const Add: React.FC = () => {
             placeholder="Please select"
             allowClear
             style={{ width: "100%" }}
-            options={category?.map((item) => ({
-              key: item?.id,
-              label: item?.name_uz,
-              value: item?.id,
-            }))}
+            options={
+              category?.map((item) => ({
+                key: item.id,
+                label: item.name_uz,
+                value: item.id,
+              })) || []
+            }
           />
         </Form.Item>
         <Button htmlType="submit">add</Button>

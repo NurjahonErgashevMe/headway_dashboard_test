@@ -5,4 +5,5 @@ export type CategoryType = {
   id: string;
   parent_id: string | null;
   image_url : string;
+  children ?: CategoryType[] | [null]
 };

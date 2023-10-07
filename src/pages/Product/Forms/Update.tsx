@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { memo } from "react";
-import { Button, Input, Select, Form, message } from "antd";
+import { Button, Input, Select, Form, message  , InputNumber} from "antd";
 import DateUTC from "../../../hooks/useDateUTC";
 import classes from "./Update.module.scss";
 // import { useStore } from "../../../utils/store/store";
@@ -81,14 +81,14 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
             .replace(",", "")
             .replace("$", "")}
         >
-          <Input
+          <InputNumber
             defaultValue={String(data?.price)
               .split(".00")
               .join("")
               .replace(",", "")
               .replace("$", "")}
             placeholder="Price"
-          ></Input>
+          ></InputNumber>
         </Form.Item>
         <Form.Item<ProductType>
           label="Sale price"
@@ -99,21 +99,21 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
             .replace(",", "")
             .replace("$", "")}
         >
-          <Input
+          <InputNumber
             defaultValue={String(data?.sale_price)
               .split(".00")
               .join("")
               .replace(",", "")
               .replace("$", "")}
             placeholder="Sale Price"
-          ></Input>
+          ></InputNumber>
         </Form.Item>
         <Form.Item<ProductType>
           label="Count"
           name="count"
           initialValue={Number(data.count)}
         >
-          <Input defaultValue={data.count} placeholder="Sale Price"></Input>
+          <InputNumber defaultValue={data.count} placeholder="Sale Price"></InputNumber>
         </Form.Item>
         <Form.Item<Omit<ProductType, "image"> & { image_url: string }>
           label="Image url"

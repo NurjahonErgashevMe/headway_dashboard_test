@@ -16,7 +16,7 @@ const useGET = <T>(
   keys: string | string[],
   url: string,
   options?: OptionsType
-): UseQueryResult<{ data: T[] }> => {
+): UseQueryResult<{ data: T }> => {
   const [cookie] = useCookies(["token"]);
   return useQuery(
     keys,
