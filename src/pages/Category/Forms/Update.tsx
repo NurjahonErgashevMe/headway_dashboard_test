@@ -67,6 +67,13 @@ const CategoryUpdate: React.FC<Props> = ({ id }) => {
         >
           <Input defaultValue={item?.name_lat} placeholder="Name lat"></Input>
         </Form.Item>
+        <Form.Item<CategoryType>
+          label="Image url"
+          name="image_url"
+          initialValue={item?.name_lat}
+        >
+          <Input defaultValue={item?.image_url} placeholder="Image url"></Input>
+        </Form.Item>
         <Button htmlType="submit">submit</Button>
       </Form>
     </div>

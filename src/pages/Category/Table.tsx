@@ -9,6 +9,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
+  RollbackOutlined,
 } from "@ant-design/icons";
 import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
@@ -18,6 +19,7 @@ import { Image, message } from "antd";
 import { CategoryType } from "../../types/category.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Update from "./Forms/Update";
+import Children from "./Children/Children";
 type Props = {
   data: CategoryType[];
 };
@@ -37,7 +39,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
     NiceModal.show(MyModal, {
       children: <View data={finded} id={id} />,
       variant: "view",
-      okButton : false
+      okButton: false,
     });
   };
   const ModalDeleteHandler = (id: string) => {
@@ -65,16 +67,26 @@ const ProductTable: React.FC<Props> = ({ data }) => {
       okButton: false,
     });
   };
+  const ModalViewChildren = (id: string) => {
+    NiceModal.show(MyModal, {
+      children: <Children id={id} />,
+      variant: "view",
+      okButton: false,
+      width : 800
+    });
+  };
   return (
     <div style={TableWrapper}>
       <Table
         dataSource={data?.map((item) => ({ ...item, key: item.id }))}
-        expandable={{
-          // expandedRowRender: (record: CategoryType) => (
-          //   // <p style={{ margin: 0 }}>{record.}</p>
-          // ),
-          // rowExpandable: (record) => record.name !== "Not Expandable",
-        }}
+        expandable={
+          {
+            // expandedRowRender: (record: CategoryType) => (
+            //   // <p style={{ margin: 0 }}>{record.}</p>
+            // ),
+            // rowExpandable: (record) => record.name !== "Not Expandable",
+          }
+        }
       >
         <Column
           key={"name_uz"}
@@ -83,7 +95,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
         ></Column>
         <Column
           key={"name_ru"}
-          title={"Rame ru"}
+          title={"Name ru"}
           render={(record: CategoryType) => <p>{record.name_ru}</p>}
         ></Column>
         <Column
@@ -94,9 +106,10 @@ const ProductTable: React.FC<Props> = ({ data }) => {
         <Column
           key={"image"}
           title={"Image"}
-          render={(record: CategoryType) => (
-            <Image src={record.image_url} alt="image"></Image>
-          )}
+          width={150}
+          render={(
+            record: Omit<CategoryType, "image_url"> & { image: string }
+          ) => <Image src={record.image} alt="image"></Image>}
         ></Column>
 
         <Column
@@ -126,6 +139,14 @@ const ProductTable: React.FC<Props> = ({ data }) => {
                   onClick={() => ModalViewHandler(record.id)}
                 >
                   <InfoCircleOutlined />
+                </Button>
+              </Tooltip>
+              <Tooltip title="view children">
+                <Button
+                  shape="circle"
+                  onClick={() => ModalViewChildren(record.id)}
+                >
+                  <RollbackOutlined />
                 </Button>
               </Tooltip>
             </Space>
