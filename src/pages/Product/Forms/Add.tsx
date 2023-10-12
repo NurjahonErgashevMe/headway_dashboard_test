@@ -127,32 +127,11 @@ const Add: React.FC = () => {
           label={"Child Category"}
           initialValue={null}
         >
-          {/* <Select
-            loading={useGETWithId.isLoading}
-            disabled={!useGETWithId?.data?.data?.length}
-            placeholder="Select and search value"
-            allowClear
-            style={{ width: "100%" }}
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label.toLocaleLowerCase() ?? "").includes(
-                input.toLowerCase()
-              )
-            }
-            filterSort={(optionA, optionB) =>
-              (optionA?.label ?? "")
-                .toLowerCase()
-                .localeCompare((optionB?.label ?? "").toLowerCase())
-            }
-            options={
-              useGETWithId?.data?.data?.map((item) => ({
-                key: item.id,
-                label: item.name_uz,
-                value: item.id,
-              })) || []
-            }
-          /> */}
           <Dropdown
+            overlayStyle={{
+              height : "300px",
+              overflowY: "scroll"
+            }}
             disabled={!useGETWithId?.data?.data?.length}
             menu={{
               itemScope: true,
