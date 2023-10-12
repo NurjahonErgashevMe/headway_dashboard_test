@@ -60,7 +60,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
         }),
     });
   };
-  const ModalUpdateandler = (id: string) => {
+  const ModalUpdateandler = (id: string  ) => {
     NiceModal.show(MyModal, {
       children: <Update id={id} />,
       variant: "update",
@@ -72,21 +72,13 @@ const ProductTable: React.FC<Props> = ({ data }) => {
       children: <Children id={id} />,
       variant: "view",
       okButton: false,
-      width : 800
+      width: 800,
     });
   };
   return (
     <div style={TableWrapper}>
       <Table
         dataSource={data?.map((item) => ({ ...item, key: item.id }))}
-        expandable={
-          {
-            // expandedRowRender: (record: CategoryType) => (
-            //   // <p style={{ margin: 0 }}>{record.}</p>
-            // ),
-            // rowExpandable: (record) => record.name !== "Not Expandable",
-          }
-        }
       >
         <Column
           key={"name_uz"}
@@ -106,10 +98,9 @@ const ProductTable: React.FC<Props> = ({ data }) => {
         <Column
           key={"image"}
           title={"Image"}
-          width={150}
           render={(
             record: Omit<CategoryType, "image_url"> & { image: string }
-          ) => <Image src={record.image} alt="image"></Image>}
+          ) => <Image width={150} src={record.image} alt="image"></Image>}
         ></Column>
 
         <Column
@@ -120,7 +111,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
               <Tooltip title="edit">
                 <Button
                   shape="circle"
-                  onClick={() => ModalUpdateandler(record.id)}
+                  onClick={() => ModalUpdateandler(record.id )}
                 >
                   <EditOutlined />
                 </Button>

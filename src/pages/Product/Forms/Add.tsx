@@ -1,22 +1,46 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { Button, Form, Input, message, InputNumber } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  InputNumber,
+  Dropdown,
+  Space,
+} from "antd";
 import classes from "./Add.module.scss";
 import { ProductType } from "../../../types/product.type";
 import useCreate from "../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../utils/store/store";
 import { Select } from "antd/lib";
-
+import { CategoryType } from "../../../types/category.type";
+import useGET from "../../../hooks/useGET";
+import { DownOutlined, DeleteOutlined } from "@ant-design/icons";
+import { flatten } from "../../../helpers";
 const Add: React.FC = () => {
   const { category } = useStore();
   const useCREATE = useCreate(`product`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  const handleSubmit = (data: any) => {
-    const datas = { ...data, characteristic: { color: data.color } };
+  const [childCategoryId, setChildCategoryId] = React.useState<string>("");
+  const parentCategory = Form.useWatch("category_id", form);
+  const useGETWithId = useGET<CategoryType[]>(
+    ["category", parentCategory || ""],
+    `category/children/${parentCategory}`
+  );
 
-    useCREATE.mutate(datas, {
+  const handleSubmit = (
+    data: Omit<ProductType, "id"> & { child_id: string; color: string }
+  ) => {
+    const { color, child_id, ...datas } = {
+      ...data,
+      characteristic: { color: data?.color },
+      category_id: childCategoryId ? childCategoryId : data.category_id,
+    };
+    useCREATE.mutate(datas as any, {
       onSuccess: async () => {
         queryClient.invalidateQueries({
           queryKey: ["products"],
@@ -30,6 +54,7 @@ const Add: React.FC = () => {
       },
     });
   };
+
   return (
     <div className={classes.add}>
       <Form
@@ -71,11 +96,23 @@ const Add: React.FC = () => {
           name={"category_id"}
           label={"Category"}
           initialValue={null}
+          required
         >
           <Select
-            placeholder="Please select"
+            placeholder="Select and search value"
             allowClear
             style={{ width: "100%" }}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label.toLocaleLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
             options={
               category?.map((item) => ({
                 key: item.id,
@@ -84,6 +121,82 @@ const Add: React.FC = () => {
               })) || []
             }
           />
+        </Form.Item>
+        <Form.Item<ProductType & { child_id: string }>
+          name={"child_id"}
+          label={"Child Category"}
+          initialValue={null}
+        >
+          {/* <Select
+            loading={useGETWithId.isLoading}
+            disabled={!useGETWithId?.data?.data?.length}
+            placeholder="Select and search value"
+            allowClear
+            style={{ width: "100%" }}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label.toLocaleLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
+            options={
+              useGETWithId?.data?.data?.map((item) => ({
+                key: item.id,
+                label: item.name_uz,
+                value: item.id,
+              })) || []
+            }
+          /> */}
+          <Dropdown
+            disabled={!useGETWithId?.data?.data?.length}
+            menu={{
+              itemScope: true,
+              items: useGETWithId.data?.data?.map((item) => ({
+                key: item.id,
+                label: item.name_uz,
+                value: item.id,
+                children: item?.children
+                  ?.filter((item) => item)
+                  .map((item) => ({
+                    key: item?.id,
+                    label: item?.name_uz,
+                    value: item?.id,
+                  })),
+                icon: item.children?.[0] != null ? <DownOutlined /> : <></>,
+                onClick: (e) => {
+                  setChildCategoryId(() => e.key);
+                },
+                onTitleClick: (e) => {
+                  setChildCategoryId(() => e.key);
+                },
+              })),
+              expandIcon: <></>,
+              // defaultSelectedKeys: [childCategoryId],
+              selectedKeys: [childCategoryId],
+            }}
+          >
+            <Space >
+              <Button>
+                <Space>
+                  {childCategoryId
+                    ? flatten(useGETWithId?.data?.data as CategoryType[])?.find(
+                        (item) => item.id === childCategoryId
+                      )?.name_uz
+                    : "select.."}
+                  {}
+                  <DownOutlined />
+                </Space>
+              </Button>
+              <Button onClick={() => setChildCategoryId(() => "")}>
+                <DeleteOutlined  color="red" />
+              </Button>
+            </Space>
+          </Dropdown>
         </Form.Item>
         <Form.Item<ProductType> name={"price"} label={"Price"} initialValue={0}>
           <InputNumber defaultValue={0}></InputNumber>

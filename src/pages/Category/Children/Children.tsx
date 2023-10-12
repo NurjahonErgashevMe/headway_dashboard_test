@@ -29,36 +29,48 @@ const Children: React.FC<Props> = ({ id }) => {
   if (isLoading) {
     return <Loader />;
   }
-  const ModalViewHandler = (id: string) => {
+  const ModalViewHandler = (id: string, parentId: string = id) => {
     const finded: CategoryType = data?.data as any;
 
     NiceModal.show(MyModal, {
-      children: <View data={finded} id={id} />,
+      children: <View data={finded} id={id} parentId={parentId} />,
       variant: "view",
       okButton: false,
     });
   };
   const ModalDeleteHandler = (id: string) => {
     NiceModal.show(MyModal, {
-      children: <h2>Do you want delete this?</h2>,
-      variant: "delete",
-      onOk: () =>
-        useDELETE.mutate(id as any, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: ["category"],
-            });
-            message.success("deleted!");
-          },
-          onError: () => {
-            message.error("error!");
-          },
-        }),
+      children: (
+        <div>
+          <h3>Do you want delete this?</h3>
+          <Button
+            color="red"
+            onClick={() => {
+              useDELETE.mutate(id as any, {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ["category"],
+                  });
+                  message.success("deleted!");
+                  console.log("success");
+                },
+                onError: () => {
+                  message.error("error!");
+                },
+              });
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+      variant : "view",
+      okButton: false,
     });
   };
-  const ModalUpdateandler = (id: string) => {
+  const ModalUpdateandler = (id: string, parent_id: string) => {
     NiceModal.show(MyModal, {
-      children: <Update id={id} />,
+      children: <Update id={id} parentId={parent_id} />,
       variant: "update",
       okButton: false,
     });
@@ -72,9 +84,14 @@ const Children: React.FC<Props> = ({ id }) => {
     });
   };
   if (isSuccess) {
-
     return (
-      <Table dataSource={data.data.map((item) => ({ ...item, key: item.id }))}>
+      <Table
+        dataSource={data.data.map((item) => ({
+          ...item,
+          key: item.id,
+          children: null,
+        }))}
+      >
         <Table.Column
           key={"name_uz"}
           title={"Name uz"}
@@ -98,7 +115,7 @@ const Children: React.FC<Props> = ({ id }) => {
               <Tooltip title="edit">
                 <Button
                   shape="circle"
-                  onClick={() => ModalUpdateandler(record.id)}
+                  onClick={() => ModalUpdateandler(record.id, id)}
                 >
                   <EditOutlined />
                 </Button>
@@ -114,7 +131,7 @@ const Children: React.FC<Props> = ({ id }) => {
               <Tooltip title="view">
                 <Button
                   shape="circle"
-                  onClick={() => ModalViewHandler(record.id)}
+                  onClick={() => ModalViewHandler(record.id, id)}
                 >
                   <InfoCircleOutlined />
                 </Button>

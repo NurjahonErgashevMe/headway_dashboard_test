@@ -6,7 +6,7 @@ import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
 
 function Users() {
-  const users = useGET<UserTypes>(["users"], "/admin/users/list");
+  const users = useGET<UserTypes[]>(["users"], "/admin/users/list");
   if (users.isLoading) {
     return <Loader />;
   }

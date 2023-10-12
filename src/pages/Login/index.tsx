@@ -19,6 +19,11 @@ const Login: React.FC = () => {
   const [_, setCookies] = useCookies(["token", "phone"]);
   const usePOST = useCreate("user/login");
   const navigate = useNavigate();
+  // setCookies(
+  //   "token",
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MjZmMThjYzRhZTA2YzFlZTViZTZiYiIsImlhdCI6MTY5NzA1MTE3N30.WqRE0PCy44-cOwL023GfO8JVuclHfCsgG2neiDqRoj4"
+  // );
+  // setCookies("phone", "998941250709");
   const onFinish = (values: FieldType) => {
     try {
       usePOST.mutate(values as any, {
@@ -28,7 +33,11 @@ const Login: React.FC = () => {
           navigate("/");
           return message.success("logged in!");
         },
-        onError: () => message.error("error  login"),
+        onError: (err) => {
+          console.log(err);
+
+          message.error("error  login");
+        },
       });
     } catch (err) {
       console.log(err);

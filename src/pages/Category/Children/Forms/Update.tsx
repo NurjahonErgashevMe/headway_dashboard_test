@@ -7,24 +7,28 @@ import classes from "./Update.module.scss";
 import { CategoryType } from "../../../../types/category.type";
 import useUpdate from "../../../../hooks/useUpdate";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStore } from "../../../../utils/store/store";
+import useGET from "../../../../hooks/useGET";
 type Props = {
   id: string;
+  parentId: string;
 };
 
-const CategoryUpdate: React.FC<Props> = ({ id }) => {
-  const { category } = useStore();
+const CategoryUpdate: React.FC<Props> = ({ id, parentId }) => {
   const useUPDATE = useUpdate(`admin/category/${id}`);
-  const item = category?.find((item) => item.id === id);
+  const category = useGET<CategoryType[]>(
+    ["category", parentId],
+    `category/children/${parentId}`
+  );
+  const item = category?.data?.data.find((item) => item.id === id);
+  console.log(item);
 
   const queryClient = useQueryClient();
   const handleSubmit = (data: any) => {
-    console.log(data);
-
-    useUPDATE.mutate(data, {
+    const datas = { ...data, parent_id: parentId, image_url: "" };
+    useUPDATE.mutate(datas as any, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["category"],
+          queryKey: ["category" , parentId],
         });
         message.success("updated !");
       },
@@ -66,13 +70,6 @@ const CategoryUpdate: React.FC<Props> = ({ id }) => {
           initialValue={item?.name_lat}
         >
           <Input defaultValue={item?.name_lat} placeholder="Name lat"></Input>
-        </Form.Item>
-        <Form.Item<CategoryType>
-          label="Image url"
-          name="image_url"
-          initialValue={item?.name_lat}
-        >
-          <Input defaultValue={item?.image_url} placeholder="Image url"></Input>
         </Form.Item>
         <Button htmlType="submit">submit</Button>
       </Form>

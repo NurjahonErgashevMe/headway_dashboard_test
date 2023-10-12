@@ -45,7 +45,6 @@ const Sidebar: React.FC<Props> = ({ user }) => {
         theme="dark"
         mode="inline"
         defaultSelectedKeys={["0"]}
-        onSelect={(item) => console.log(item)}
         className={classes.menu}
       >
         {routes?.map((item, index) => (

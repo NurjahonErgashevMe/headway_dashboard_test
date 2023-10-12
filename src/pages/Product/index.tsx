@@ -1,3 +1,4 @@
+import React from "react";
 import classes from "./index.module.scss";
 import useGET from "../../hooks/useGET";
 import ProductTable from "./Table";
@@ -12,12 +13,12 @@ import { Button } from "antd";
 import { PlusCircleFilled } from "@ant-design/icons";
 
 function Products() {
-  const { data, isLoading, isError, isSuccess } = useGET<ProductType>(
+  const { data, isLoading, isError, isSuccess } = useGET<ProductType[]>(
     ["products"],
     "/admin/product/list"
   );
-  const users = useGET<UserTypes>(["users"], "/admin/users/list");
-  if (isLoading || users.isLoading ) {
+  const users = useGET<UserTypes[]>(["users"], "/admin/users/list");
+  if (isLoading || users.isLoading) {
     return <Loader />;
   }
   if (isError) {
@@ -39,10 +40,7 @@ function Products() {
             <PlusCircleFilled /> Add
           </Button>
         </div>
-        <ProductTable
-          data={data?.data}
-          users={users?.data?.data as UserTypes[]}
-        ></ProductTable>
+        <ProductTable data={data?.data} users={users.data.data}></ProductTable>
       </div>
     );
   }

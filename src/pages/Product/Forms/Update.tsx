@@ -1,7 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
+import React from "react";
 import { memo } from "react";
-import { Button, Input, Select, Form, message  , InputNumber} from "antd";
+import {
+  Button,
+  Input,
+  Select,
+  Form,
+  message,
+  InputNumber,
+  Dropdown,
+} from "antd";
 import DateUTC from "../../../hooks/useDateUTC";
 import classes from "./Update.module.scss";
 // import { useStore } from "../../../utils/store/store";
@@ -9,6 +19,11 @@ import { ProductType } from "../../../types/product.type";
 import useUpdate from "../../../hooks/useUpdate";
 import { useStore } from "../../../utils/store/store";
 import { CategoryType } from "../../../types/category.type";
+import useGET from "../../../hooks/useGET";
+import useGetById from "../../../hooks/useGetById";
+import { Instance } from "../../../utils/axios";
+import { useCookies } from "react-cookie";
+import { flatten } from "../../../helpers";
 type Props = {
   data: Omit<ProductType, "image_url"> & { image: string };
   owner: string;
@@ -20,6 +35,19 @@ const { TextArea } = Input;
 const ProductUpdate: React.FC<Props> = ({ data, id }) => {
   const { category } = useStore();
   const useUPDATE = useUpdate(`product/${id}`);
+  const getCategories = useGET<CategoryType[]>(
+    ["category"],
+    "category/parents"
+  );
+  const [cookie] = useCookies(["token"]);
+  const [allCategory, setAllCategory] = React.useState<any[]>([]);
+  const getCategoriesById = useGetById("category/children");
+  const [parentCategory, setParentCategory] =
+    React.useState<CategoryType | null>(null);
+  const [childCategory, setChildCategory] = React.useState<CategoryType | null>(
+    null
+  );
+
   const categories: CategoryType =
     category?.find((item) => item.id === data.category_id) || ([] as any);
   const handleSubmit = (data: any) => {
@@ -40,6 +68,26 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
       },
     });
   };
+  React.useEffect(() => {
+    if (getCategories.isSuccess) {
+      for (const item of getCategories?.data?.data as CategoryType[]) {
+        Instance.get(`/category/children/${item.id}`, {
+          headers: { Authorization: cookie.token },
+        }).then((data) => setAllCategory((prev) => [...prev, ...data.data]));
+      }
+    }
+  }, [getCategories.data?.data, getCategories.isSuccess]);
+  React.useEffect(() => {
+    const item: any = flatten(allCategory)?.find(
+      (item) => item.id == data.category_id
+    );
+    const flatted = flatten(allCategory);
+    setParentCategory(
+      () => flatted.find((i) => i.id == item?.flatten_parent_id) as any
+    );
+    setChildCategory(() => item);
+  }, [allCategory]);
+  console.log(parentCategory, "parent");
 
   return (
     <div className={classes.update}>
@@ -113,7 +161,10 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
           name="count"
           initialValue={Number(data.count)}
         >
-          <InputNumber defaultValue={data.count} placeholder="Sale Price"></InputNumber>
+          <InputNumber
+            defaultValue={data.count}
+            placeholder="Sale Price"
+          ></InputNumber>
         </Form.Item>
         <Form.Item<Omit<ProductType, "image"> & { image_url: string }>
           label="Image url"
@@ -149,15 +200,51 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
           name={"category_id"}
           initialValue={categories.id}
         >
-          <Select
-            placeholder="Please select"
-            defaultValue={data?.characteristic?.color}
-            style={{ width: "100%" }}
-            options={[
-              { label: categories.name_uz, value: categories.id, key: 1 },
-            ]}
-            maxLength={1}
-          />
+          {/* <Dropdown
+            disabled={!useGETWithId?.data?.data?.length}
+            menu={{
+              itemScope: true,
+              items: useGETWithId.data?.data?.map((item) => ({
+                key: item.id,
+                label: item.name_uz,
+                value: item.id,
+                children: item?.children
+                  ?.filter((item) => item)
+                  .map((item) => ({
+                    key: item?.id,
+                    label: item?.name_uz,
+                    value: item?.id,
+                  })),
+                icon: item.children?.[0] != null ? <DownOutlined /> : <></>,
+                onClick: (e) => {
+                  setChildCategoryId(() => e.key);
+                },
+                onTitleClick: (e) => {
+                  setChildCategoryId(() => e.key);
+                },
+              })),
+              expandIcon: <></>,
+              // defaultSelectedKeys: [childCategoryId],
+              selectedKeys: [childCategoryId],
+            }}
+          >
+            <Space>
+              <Button>
+                <Space>
+                  {childCategoryId
+                    ? flatten(useGETWithId?.data?.data as CategoryType[])?.find(
+                        (item) => item.id === childCategoryId
+                      )?.name_uz
+                    : "select.."}
+                  {}
+                  <DownOutlined />
+                </Space>
+              </Button>
+              <Button onClick={() => setChildCategoryId(() => "")}>
+                <DeleteOutlined color="red" />
+              </Button>
+            </Space>
+          </Dropdown> */}
         </Form.Item>
         <Form.Item<ProductType>
           label="Description"

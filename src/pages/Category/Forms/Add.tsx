@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Button, Form, Input, Select, message } from "antd";
@@ -7,34 +8,30 @@ import { useStore } from "../../../utils/store/store";
 import useCreate from "../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
 import useGET from "../../../hooks/useGET";
-import { flatten } from "../../../helpers";
-import { Instance } from "../../../utils/axios";
+// import useGET from "../../../hooks/useGET";
 
 const Add: React.FC = () => {
-  const { category } = useStore();
-  const categories = useGET<CategoryType>(["category"], "category/parents");
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
+  const { category } = useStore();
   const [form] = Form.useForm();
-  // React.useEffect(() => {
-  //   if (categories.isSuccess && category == null) {
-  //     for (const item of categories.data.data) {
-  //       Instance.get(`/category/children/${item.id}`).then((data) =>
-  //         setCategory([...flattenTree(data.data), ...categories.data.data])
-  //       );
-  //     }
-  //   }
-  // }, [categories.data?.data, categories.status, setCategory]);
+  const parentCategory = Form.useWatch("parent_id", form);
+  const useGETWithId = useGET<CategoryType[]>(
+    ["category", parentCategory || ""],
+    `category/children/${parentCategory}`
+  );
 
-  const handleSubmit = (data: any) => {
-    useCREATE.mutate(data, {
+  const handleSubmit = (data: CategoryType & { child_id: string }) => {
+    const { child_id, ...datas }: CategoryType & { child_id: string } = {
+      ...data,
+      parent_id: data.child_id ? data.child_id : data.parent_id,
+    };
+    
+    useCREATE.mutate(datas as any, {
       onSuccess: async () => {
-        await categories.refetch();
-        console.log(categories?.data?.data, "categories");
         queryClient.invalidateQueries({
           queryKey: ["category"],
         });
-        // setCategory(flatten(categories.data?.data as any));
         message.success("added!");
         form.resetFields();
       },
@@ -87,10 +84,50 @@ const Add: React.FC = () => {
           initialValue={null}
         >
           <Select
-            placeholder="Please select"
+            placeholder="Select and search value"
             allowClear
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label.toLocaleLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
             style={{ width: "100%" }}
             options={category?.map((item) => ({
+              key: item?.id,
+              label: item?.name_uz,
+              value: item?.id,
+            }))}
+          />
+        </Form.Item>
+        <Form.Item<CategoryType & { child_id: string }>
+          name={"child_id"}
+          label={"Child category"}
+          initialValue={null}
+        >
+          <Select
+            placeholder="Select and search child value"
+            allowClear
+            showSearch
+            loading={useGETWithId.isLoading}
+            disabled={!useGETWithId.data?.data}
+            filterOption={(input, option) =>
+              (option?.label.toLocaleLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
+            style={{ width: "100%" }}
+            options={useGETWithId.data?.data?.map((item) => ({
               key: item?.id,
               label: item?.name_uz,
               value: item?.id,

@@ -3,13 +3,9 @@ import React from "react";
 import { Layout } from "antd";
 import Sidebar from "./Sidebar/Sidebar";
 import useGET from "../../hooks/useGET";
-import { CategoryType } from "../../types/category.type";
-import { useStore } from "../../utils/store/store";
 import { UserTypes } from "../../types/user.type";
 import Loader from "../Loader/Loader";
 import { useCookies } from "react-cookie";
-import flattenTree from "../../helpers/flutten";
-import { Instance } from "../../utils/axios";
 
 const { Content } = Layout;
 
@@ -18,20 +14,10 @@ type Props = {
 };
 
 const CustomLayout: React.FC<Props> = ({ children }) => {
-  const categories = useGET<CategoryType[]>(["category"], "/category/parents");
   const users = useGET<UserTypes[]>(["users"], "admin/users/list");
-  const [cookies] = useCookies(["phone"]);
-  const { category, setCategory } = useStore();
-  
-  if (categories.isSuccess && category == null) {
-    for (const item of categories.data.data) {
-      Instance.get(`/category/children/${item.id}`).then((data) =>
-        setCategory([...flattenTree(data.data), ...categories.data.data])
-      );
-    }
-  }
+  const [cookies] = useCookies(["phone", "token"]);
 
-  if (categories.isSuccess && users.isSuccess) {
+  if (users.isSuccess) {
     const user: UserTypes = users.data.data.find(
       (item) => item.phone === String(cookies.phone)
     ) as any;

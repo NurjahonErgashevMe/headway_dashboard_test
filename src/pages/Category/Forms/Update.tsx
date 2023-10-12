@@ -1,27 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { memo } from "react";
 import { Button, Input, Form, message } from "antd";
 import classes from "./Update.module.scss";
-// import { useStore } from "../../../utils/store/store";
 import { CategoryType } from "../../../types/category.type";
 import useUpdate from "../../../hooks/useUpdate";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStore } from "../../../utils/store/store";
+import useGET from "../../../hooks/useGET";
 type Props = {
   id: string;
 };
 
 const CategoryUpdate: React.FC<Props> = ({ id }) => {
-  const { category } = useStore();
+  const category = useGET<CategoryType[]>(["category"], "category/parents");
   const useUPDATE = useUpdate(`admin/category/${id}`);
-  const item = category?.find((item) => item.id === id);
-
+  const item: (Omit<CategoryType, "image_url"> & { image: string }) | any =
+    category?.data?.data.find((item) => item.id === id);
   const queryClient = useQueryClient();
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: CategoryType & { image: string }) => {
     console.log(data);
-
-    useUPDATE.mutate(data, {
+    const { image, ...datas } = { ...data, image_url: data.image };
+    useUPDATE.mutate(datas as any, {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ["category"],
@@ -67,12 +67,12 @@ const CategoryUpdate: React.FC<Props> = ({ id }) => {
         >
           <Input defaultValue={item?.name_lat} placeholder="Name lat"></Input>
         </Form.Item>
-        <Form.Item<CategoryType>
+        <Form.Item<Omit<CategoryType, "image_url"> & { image: string }>
           label="Image url"
-          name="image_url"
-          initialValue={item?.name_lat}
+          name="image"
+          initialValue={item?.image}
         >
-          <Input defaultValue={item?.image_url} placeholder="Image url"></Input>
+          <Input defaultValue={item?.image} placeholder="Image url"></Input>
         </Form.Item>
         <Button htmlType="submit">submit</Button>
       </Form>

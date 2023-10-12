@@ -7,47 +7,21 @@ import { useStore } from "../../../../utils/store/store";
 import useCreate from "../../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
 import useGET from "../../../../hooks/useGET";
-import { flatten } from "../../../../helpers";
-import { Instance } from "../../../../utils/axios";
-import flattenTree from "../../../../helpers/flutten";
 
 const Add: React.FC = () => {
-  const { category, setCategory } = useStore();
+  const { category } = useStore();
   const categories = useGET<CategoryType[]>(["category"], "category/parents");
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  // React.useEffect(() => {
-  //   if (categories.isSuccess && category == null) {
-  //     for (const item of categories.data.data) {
-  //       Instance.get(`/category/children/${item.id}`).then((data) =>
-  //         setCategory([...flattenTree(data.data), ...categories.data.data])
-  //       );
-  //     }
-  //   }
-  // }, [
-  //   categories?.data?.data,
-  //   categories.isSuccess,
-  //   categories.status,
-  //   category,
-  //   setCategory,
-  // ]);
 
   const handleSubmit = (data: any) => {
     useCREATE.mutate(data, {
       onSuccess: async () => {
         await categories.refetch();
-        console.log(categories?.data?.data, "categories");
         queryClient.invalidateQueries({
           queryKey: ["category"],
         });
-        if (categories.isSuccess && category == null) {
-          for (const item of categories.data.data) {
-            Instance.get(`/category/children/${item.id}`).then((data) =>
-              setCategory([...flattenTree(data.data), ...categories.data.data])
-            );
-          }
-        }
 
         message.success("added!");
         form.resetFields();
@@ -101,8 +75,18 @@ const Add: React.FC = () => {
           initialValue={null}
         >
           <Select
-            placeholder="Please select"
+            placeholder="Select and search value"
             allowClear
+            showSearch
+            // optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.label ?? "").includes(input)
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
             style={{ width: "100%" }}
             options={
               category?.map((item) => ({
