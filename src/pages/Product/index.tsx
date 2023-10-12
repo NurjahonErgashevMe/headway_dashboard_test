@@ -1,4 +1,3 @@
-import React from "react";
 import classes from "./index.module.scss";
 import useGET from "../../hooks/useGET";
 import ProductTable from "./Table";

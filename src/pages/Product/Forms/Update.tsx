@@ -3,15 +3,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from "react";
 import { memo } from "react";
-import {
-  Button,
-  Input,
-  Select,
-  Form,
-  message,
-  InputNumber,
-  Dropdown,
-} from "antd";
+import { Button, Input, Select, Form, message, InputNumber } from "antd";
 import DateUTC from "../../../hooks/useDateUTC";
 import classes from "./Update.module.scss";
 // import { useStore } from "../../../utils/store/store";
@@ -20,7 +12,6 @@ import useUpdate from "../../../hooks/useUpdate";
 import { useStore } from "../../../utils/store/store";
 import { CategoryType } from "../../../types/category.type";
 import useGET from "../../../hooks/useGET";
-import useGetById from "../../../hooks/useGetById";
 import { Instance } from "../../../utils/axios";
 import { useCookies } from "react-cookie";
 import { flatten } from "../../../helpers";
@@ -41,12 +32,9 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
   );
   const [cookie] = useCookies(["token"]);
   const [allCategory, setAllCategory] = React.useState<any[]>([]);
-  const getCategoriesById = useGetById("category/children");
   const [parentCategory, setParentCategory] =
     React.useState<CategoryType | null>(null);
-  const [childCategory, setChildCategory] = React.useState<CategoryType | null>(
-    null
-  );
+  const [, setChildCategory] = React.useState<CategoryType | null>(null);
 
   const categories: CategoryType =
     category?.find((item) => item.id === data.category_id) || ([] as any);
