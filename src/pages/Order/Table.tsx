@@ -8,7 +8,6 @@ import NiceModal from "@ebay/nice-modal-react";
 import Modal from "../../components/Modal/Modal";
 import classes from "./index.module.scss";
 import ProductTable from "../Product/Table";
-import { useStore } from "../../utils/store/store";
 import { UserTypes } from "../../types/user.type";
 import GetParamsWithFInd from "../../hooks/useGetParamsWithFind";
 const { Column } = Table;
