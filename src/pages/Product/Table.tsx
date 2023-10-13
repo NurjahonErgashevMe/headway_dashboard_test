@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { memo } from "react";
-import Table from "antd/es/table";
+import Table, { TableProps } from "antd/es/table";
 import Image from "antd/es/image";
 import Tag from "antd/es/tag";
 import Space from "antd/es/space";
@@ -23,10 +23,10 @@ import { ProductType } from "../../types/product.type";
 import { UserTypes } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Update from "./Forms/Update";
-type Props = {
+interface Props extends TableProps<any> {
   data: ProductType[];
   users: UserTypes[];
-};
+}
 
 const TableWrapper: React.CSSProperties = {
   padding: "30px 20px",
@@ -39,7 +39,7 @@ const ImageWrapperStyles: React.CSSProperties = {
   height: "100px",
 };
 
-const ProductTable: React.FC<Props> = ({ data, users }) => {
+const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
   const useDELETE = useDelete(`admin/product`);
   const queryClient = useQueryClient();
   const ModalViewHandler = (id: string) => {
@@ -90,18 +90,6 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
         />
       ),
       variant: "update",
-      // onOk: () =>
-      //   useDELETE.mutate(id as any, {
-      //     onSuccess: () => {
-      //       queryClient.invalidateQueries({
-      //         queryKey: ["products"],
-      //       });
-      //       message.success("deleted!");
-      //     },
-      //     onError: () => {
-      //       message.error("error!");
-      //     },
-      //   }),
       okButton: false,
     });
   };
@@ -114,6 +102,7 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
           ),
         }}
         dataSource={data?.map((item, index) => ({ ...item, key: index + 1 }))}
+        {...props}
       >
         <Column
           key={"name_uz"}
@@ -121,8 +110,8 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
           render={(record: ProductType) => <p>{record.name_uz}</p>}
         ></Column>
         <Column
-          title={"name_ru"}
-          key={"Rame ru"}
+          key={"name_ru"}
+          title={"Name ru"}
           render={(record: ProductType) => <p>{record.name_ru}</p>}
         ></Column>
         <Column

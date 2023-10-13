@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Category from "../pages/Category";
+import Order from "../pages/Order";
 import Products from "../pages/Product";
 import Users from "../pages/Users";
 type RouteProps = {
@@ -27,6 +28,12 @@ const routes: RouteProps[] = [
     title: "Users",
     index: false,
     Component: Users,
+  },
+  {
+    path: "/orders",
+    title: "Orders",
+    index: false,
+    Component: Order,
   },
 ];
 

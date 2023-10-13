@@ -11,7 +11,7 @@ function Users() {
     return <Loader />;
   }
   if (users.isError) {
-    return <Error code={"123"} />
+    return <Error code={"123"} />;
   }
 
   if (users.isSuccess) {
