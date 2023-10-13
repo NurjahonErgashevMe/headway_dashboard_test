@@ -4,7 +4,6 @@ import React from "react";
 import { Button, Form, Input, Select, message } from "antd";
 import classes from "./Add.module.scss";
 import { CategoryType } from "../../../types/category.type";
-import { useStore } from "../../../utils/store/store";
 import useCreate from "../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
 import useGET from "../../../hooks/useGET";
@@ -13,7 +12,7 @@ import useGET from "../../../hooks/useGET";
 const Add: React.FC = () => {
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
-  const { category } = useStore();
+  const category = useGET<CategoryType[]>(["category"] , 'category/parents')
   const [form] = Form.useForm();
   const parentCategory = Form.useWatch("parent_id", form);
   const useGETWithId = useGET<CategoryType[]>(
@@ -32,7 +31,9 @@ const Add: React.FC = () => {
         queryClient.invalidateQueries({
           queryKey: ["category"],
         });
+        category.refetch()
         message.success("added!");
+
         form.resetFields();
       },
       onError: (err) => {
@@ -98,7 +99,7 @@ const Add: React.FC = () => {
                 .localeCompare((optionB?.label ?? "").toLowerCase())
             }
             style={{ width: "100%" }}
-            options={category?.map((item) => ({
+            options={category?.data?.data?.map((item) => ({
               key: item?.id,
               label: item?.name_uz,
               value: item?.id,

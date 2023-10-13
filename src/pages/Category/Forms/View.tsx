@@ -3,17 +3,17 @@ import { memo } from "react";
 import { Input } from "antd";
 import classes from "./View.module.scss";
 import { CategoryType } from "../../../types/category.type";
-import { useStore } from "../../../utils/store/store";
+import useGET from "../../../hooks/useGET";
 type Props = {
   data: CategoryType;
   id: string;
 };
 
 const CategoryView: React.FC<Props> = ({ id }) => {
-  const { category } = useStore();
+  const category = useGET<CategoryType[]>(["category"],"category/parents")
   const item:
     | CategoryType
-    | { name_uz: string; name_ru: string; name_lat: string } = category?.find(
+    | { name_uz: string; name_ru: string; name_lat: string } = category?.data?.data?.find(
     (item) => item.id === id
   ) || {
     name_uz: "",

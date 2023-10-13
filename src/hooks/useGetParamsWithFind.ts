@@ -6,7 +6,7 @@ const GetParamsWithFInd = (
   returnParams: string[]
 ) => {
   const finded = dataWithId?.find((item) => item[idName] === id);
-  return returnParams.map((item) => finded[item]).join(' ');
+  return returnParams.map((item) => finded?.[item])?.join(' ');
 };
 
 export default GetParamsWithFInd;

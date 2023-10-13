@@ -1,20 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import React from "react";
 import { memo } from "react";
-import { Button, Input, Select, Form, message, InputNumber } from "antd";
+import {
+  Button,
+  Input,
+  Select,
+  Form,
+  message,
+  InputNumber,
+  Dropdown,
+  Space,
+} from "antd";
 import DateUTC from "../../../hooks/useDateUTC";
 import classes from "./Update.module.scss";
-// import { useStore } from "../../../utils/store/store";
 import { ProductType } from "../../../types/product.type";
 import useUpdate from "../../../hooks/useUpdate";
-import { useStore } from "../../../utils/store/store";
 import { CategoryType } from "../../../types/category.type";
 import useGET from "../../../hooks/useGET";
-import { Instance } from "../../../utils/axios";
-import { useCookies } from "react-cookie";
 import { flatten } from "../../../helpers";
+import { DownOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useQueryClient } from "@tanstack/react-query";
 type Props = {
   data: Omit<ProductType, "image_url"> & { image: string };
   owner: string;
@@ -24,31 +32,35 @@ type Props = {
 const { TextArea } = Input;
 
 const ProductUpdate: React.FC<Props> = ({ data, id }) => {
-  const { category } = useStore();
   const useUPDATE = useUpdate(`product/${id}`);
   const getCategories = useGET<CategoryType[]>(
     ["category"],
     "category/parents"
   );
-  const [cookie] = useCookies(["token"]);
-  const [allCategory, setAllCategory] = React.useState<any[]>([]);
-  const [parentCategory, setParentCategory] =
-    React.useState<CategoryType | null>(null);
-  const [, setChildCategory] = React.useState<CategoryType | null>(null);
+  const [form] = Form.useForm();
+  const parentCategory = Form.useWatch("category_id", form);
+  const useGETWithId = useGET<CategoryType[]>(
+    ["category", parentCategory || ""],
+    `category/children/${parentCategory}`
+  );
+  const queryClient = useQueryClient()
+  const [childCategoryId, setChildCategoryId] = React.useState<string>("");
 
-  const categories: CategoryType =
-    category?.find((item) => item.id === data.category_id) || ([] as any);
-  const handleSubmit = (data: any) => {
-    const datas = {
-      ...data,
+  const handleSubmit = (formData: ProductType & { child_id: string }) => {
+    const { child_id, ...datas } = {
+      ...formData,
       characteristic: {},
-      price: Number(data.price),
+      price: Number(formData.price),
       sale_price: Number(data.price),
+      category_id: childCategoryId ? childCategoryId : data.category_id,
     } satisfies ProductType;
-    console.log(datas);
-
-    useUPDATE.mutate(datas, {
-      onSuccess: () => message.success("updated !"),
+    useUPDATE.mutate(datas as any, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey : ['products']
+        })
+        message.success("updated !")
+      },
       onError: (err) => {
         console.log(err);
 
@@ -56,26 +68,6 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
       },
     });
   };
-  React.useEffect(() => {
-    if (getCategories.isSuccess) {
-      for (const item of getCategories?.data?.data as CategoryType[]) {
-        Instance.get(`/category/children/${item.id}`, {
-          headers: { Authorization: cookie.token },
-        }).then((data) => setAllCategory((prev) => [...prev, ...data.data]));
-      }
-    }
-  }, [getCategories.data?.data, getCategories.isSuccess]);
-  React.useEffect(() => {
-    const item: any = flatten(allCategory)?.find(
-      (item) => item.id == data.category_id
-    );
-    const flatted = flatten(allCategory);
-    setParentCategory(
-      () => flatted.find((i) => i.id == item?.flatten_parent_id) as any
-    );
-    setChildCategory(() => item);
-  }, [allCategory]);
-  console.log(parentCategory, "parent");
 
   return (
     <div className={classes.update}>
@@ -86,6 +78,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
         style={{ maxWidth: 600 }}
         onFinish={(value) => handleSubmit(value)}
         autoComplete="off"
+        form={form}
       >
         <Form.Item<ProductType>
           label="Name uz"
@@ -184,11 +177,44 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
           />
         </Form.Item>
         <Form.Item<ProductType>
-          label="Categories"
           name={"category_id"}
-          initialValue={categories.id}
+          label={"Category"}
+          initialValue={null}
+          required
         >
-          {/* <Dropdown
+          <Select
+            placeholder="Select and search value"
+            style={{ width: "100%" }}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label.toLocaleLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
+            options={
+              getCategories?.data?.data?.map((item) => ({
+                key: item.id,
+                label: item.name_uz,
+                value: item.id,
+              })) || []
+            }
+          />
+        </Form.Item>
+        <Form.Item<ProductType & { child_id: string }>
+          label="Child category"
+          name={"child_id"}
+          initialValue={null}
+        >
+          <Dropdown
+            overlayStyle={{
+              maxHeight: "300px",
+              overflowY: "scroll",
+            }}
             disabled={!useGETWithId?.data?.data?.length}
             menu={{
               itemScope: true,
@@ -212,12 +238,11 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
                 },
               })),
               expandIcon: <></>,
-              // defaultSelectedKeys: [childCategoryId],
               selectedKeys: [childCategoryId],
             }}
           >
             <Space>
-              <Button>
+              <Button disabled={!useGETWithId?.data?.data?.length}>
                 <Space>
                   {childCategoryId
                     ? flatten(useGETWithId?.data?.data as CategoryType[])?.find(
@@ -232,7 +257,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
                 <DeleteOutlined color="red" />
               </Button>
             </Space>
-          </Dropdown> */}
+          </Dropdown>
         </Form.Item>
         <Form.Item<ProductType>
           label="Description"

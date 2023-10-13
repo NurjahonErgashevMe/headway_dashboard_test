@@ -56,7 +56,7 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
         />
       ),
       variant: "view",
-      okButton : false
+      okButton: false,
     });
   };
   const ModalDeleteHandler = (id: string) => {
@@ -77,17 +77,16 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
         }),
     });
   };
-  const ModalUpdateandler = (id: string) => {
-    const finded: ProductType = data.find((item) => item.id == id) || data[0];
+  const ModalUpdateandler = (data: ProductType) => {
     NiceModal.show(MyModal, {
       children: (
         <Update
-          data={finded}
-          owner={GetParamsWithFInd(users, "id", finded.owner_id, [
+          data={data}
+          owner={GetParamsWithFInd(users, "id", data.owner_id, [
             "first_name",
             "last_name",
           ])}
-          id={id}
+          id={data.id}
         />
       ),
       variant: "update",
@@ -176,6 +175,7 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
             <div style={ImageWrapperStyles}>
               <Image
                 width={100}
+                height={100}
                 src={record.image}
                 alt="image"
                 placeholder={
@@ -193,7 +193,7 @@ const ProductTable: React.FC<Props> = ({ data, users }) => {
               <Tooltip title="edit">
                 <Button
                   shape="circle"
-                  onClick={() => ModalUpdateandler(record.id)}
+                  onClick={() => ModalUpdateandler(record)}
                 >
                   <EditOutlined />
                 </Button>

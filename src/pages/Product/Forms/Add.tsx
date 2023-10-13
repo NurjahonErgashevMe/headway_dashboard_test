@@ -47,11 +47,13 @@ const Add: React.FC = () => {
         });
         message.success("added!");
         form.resetFields();
+        setChildCategoryId(()=>"")
       },
       onError: (err) => {
         console.log(err);
         message.error("error");
       },
+      
     });
   };
 
