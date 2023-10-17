@@ -13,8 +13,9 @@ import {
   InfoCircleOutlined,
   RollbackOutlined,
 } from "@ant-design/icons";
-import useDelete from "../../../hooks/useDelete";
 import { useQueryClient } from "@tanstack/react-query";
+import { Instance } from "../../../utils/axios";
+import { useCookies } from "react-cookie";
 type Props = {
   id: string;
 };
@@ -24,7 +25,7 @@ const Children: React.FC<Props> = ({ id }) => {
     ["category", id],
     `category/children/${id}`
   );
-  const useDELETE = useDelete(`admin/category`);
+  const [cookie] = useCookies(["token"]);
   const queryClient = useQueryClient();
   if (isLoading) {
     return <Loader />;
@@ -44,19 +45,21 @@ const Children: React.FC<Props> = ({ id }) => {
         <div>
           <h3>Do you want delete this?</h3>
           <Button
-            color="red"
+            style={{ borderColor: "red", color: "red" }}
             onClick={() => {
-              useDELETE.mutate(id as any, {
-                onSuccess: () => {
+              message.loading("deleting...");
+              Instance.delete(`/admin/category/${id}`, {
+                headers: {
+                  Authorization: cookie.token,
+                },
+              }).then((data) => {
+                if (data.statusText === "OK") {
                   queryClient.invalidateQueries({
                     queryKey: ["category"],
                   });
-                  message.success("deleted!");
-                  console.log("success");
-                },
-                onError: () => {
-                  message.error("error!");
-                },
+                  return message.success("deleted!");
+                }
+                return message.error("error");
               });
             }}
           >
@@ -64,7 +67,7 @@ const Children: React.FC<Props> = ({ id }) => {
           </Button>
         </div>
       ),
-      variant : "view",
+      variant: "delete",
       okButton: false,
     });
   };
@@ -85,69 +88,71 @@ const Children: React.FC<Props> = ({ id }) => {
   };
   if (isSuccess) {
     return (
-      <Table
-        dataSource={data.data.map((item) => ({
-          ...item,
-          key: item.id,
-          children: null,
-        }))}
-      >
-        <Table.Column
-          key={"name_uz"}
-          title={"Name uz"}
-          render={(record: CategoryType) => <p>{record?.name_uz}</p>}
-        ></Table.Column>
-        <Table.Column
-          key={"name_ru"}
-          title={"Name ru"}
-          render={(record: CategoryType) => <p>{record?.name_ru}</p>}
-        ></Table.Column>
-        <Table.Column
-          key={"name_lat"}
-          title={"Name lat"}
-          render={(record: CategoryType) => <p>{record?.name_lat}</p>}
-        ></Table.Column>
-        <Table.Column
-          key={"actions"}
-          title={"Actions"}
-          render={(record: CategoryType) => (
-            <Space>
-              <Tooltip title="edit">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalUpdateandler(record.id, id)}
-                >
-                  <EditOutlined />
-                </Button>
-              </Tooltip>
-              <Tooltip title="delete">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalDeleteHandler(record.id)}
-                >
-                  <DeleteOutlined />
-                </Button>
-              </Tooltip>
-              <Tooltip title="view">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalViewHandler(record.id, id)}
-                >
-                  <InfoCircleOutlined />
-                </Button>
-              </Tooltip>
-              <Tooltip title="view children">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalViewChildren(record.id)}
-                >
-                  <RollbackOutlined />
-                </Button>
-              </Tooltip>
-            </Space>
-          )}
-        ></Table.Column>
-      </Table>
+      <>
+        <Table
+          dataSource={data.data.map((item) => ({
+            ...item,
+            key: item.id,
+            children: null,
+          }))}
+        >
+          <Table.Column
+            key={"name_uz"}
+            title={"Name uz"}
+            render={(record: CategoryType) => <p>{record?.name_uz}</p>}
+          ></Table.Column>
+          <Table.Column
+            key={"name_ru"}
+            title={"Name ru"}
+            render={(record: CategoryType) => <p>{record?.name_ru}</p>}
+          ></Table.Column>
+          <Table.Column
+            key={"name_lat"}
+            title={"Name lat"}
+            render={(record: CategoryType) => <p>{record?.name_lat}</p>}
+          ></Table.Column>
+          <Table.Column
+            key={"actions"}
+            title={"Actions"}
+            render={(record: CategoryType) => (
+              <Space>
+                <Tooltip title="edit">
+                  <Button
+                    shape="circle"
+                    onClick={() => ModalUpdateandler(record.id, id)}
+                  >
+                    <EditOutlined />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="delete">
+                  <Button
+                    shape="circle"
+                    onClick={() => ModalDeleteHandler(record.id)}
+                  >
+                    <DeleteOutlined />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="view">
+                  <Button
+                    shape="circle"
+                    onClick={() => ModalViewHandler(record.id, id)}
+                  >
+                    <InfoCircleOutlined />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="view children">
+                  <Button
+                    shape="circle"
+                    onClick={() => ModalViewChildren(record.id)}
+                  >
+                    <RollbackOutlined />
+                  </Button>
+                </Tooltip>
+              </Space>
+            )}
+          ></Table.Column>
+        </Table>
+      </>
     );
   }
 };

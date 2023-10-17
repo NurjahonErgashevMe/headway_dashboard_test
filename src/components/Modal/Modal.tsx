@@ -25,10 +25,8 @@ export default NiceModal.create(
         width={width}
         title={variant}
         onOk={async () => {
-          onOk();
-          if (variant == "view" || variant == "add") {
-            modal.hide();
-          }
+          modal.hide();
+          okButton && (await onOk());
         }}
         visible={modal.visible}
         onCancel={() => modal.hide()}

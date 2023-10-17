@@ -8,7 +8,7 @@ import Space from "antd/es/space";
 import Button from "antd/es/button";
 import Tooltip from "antd/es/tooltip";
 import {
-  EditOutlined,
+  // EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
@@ -22,7 +22,7 @@ import { message } from "antd";
 import { ProductType } from "../../types/product.type";
 import { UserTypes } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
-import Update from "./Forms/Update";
+// import Update from "./Forms/Update";
 interface Props extends TableProps<any> {
   data: ProductType[];
   users: UserTypes[];
@@ -77,22 +77,22 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
         }),
     });
   };
-  const ModalUpdateandler = (data: ProductType) => {
-    NiceModal.show(MyModal, {
-      children: (
-        <Update
-          data={data}
-          owner={GetParamsWithFInd(users, "id", data.owner_id, [
-            "first_name",
-            "last_name",
-          ])}
-          id={data.id}
-        />
-      ),
-      variant: "update",
-      okButton: false,
-    });
-  };
+  // const ModalUpdateandler = (data: ProductType) => {
+  //   NiceModal.show(MyModal, {
+  //     children: (
+  //       <Update
+  //         data={data}
+  //         owner={GetParamsWithFInd(users, "id", data.owner_id, [
+  //           "first_name",
+  //           "last_name",
+  //         ])}
+  //         id={data.id}
+  //       />
+  //     ),
+  //     variant: "update",
+  //     okButton: false,
+  //   });
+  // };
   return (
     <div style={TableWrapper}>
       <Table
@@ -179,14 +179,14 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
           title={"Actions"}
           render={(record: ProductType) => (
             <Space>
-              <Tooltip title="edit">
+              {/* <Tooltip title="edit">
                 <Button
                   shape="circle"
                   onClick={() => ModalUpdateandler(record)}
                 >
                   <EditOutlined />
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="delete">
                 <Button
                   shape="circle"

@@ -11,8 +11,7 @@ import {
   Form,
   message,
   InputNumber,
-  Dropdown,
-  Space,
+  TreeSelect,
 } from "antd";
 import DateUTC from "../../../hooks/useDateUTC";
 import classes from "./Update.module.scss";
@@ -20,9 +19,8 @@ import { ProductType } from "../../../types/product.type";
 import useUpdate from "../../../hooks/useUpdate";
 import { CategoryType } from "../../../types/category.type";
 import useGET from "../../../hooks/useGET";
-import { flatten } from "../../../helpers";
-import { DownOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
+import MyUpload from "../../../components/Upload/Upload";
 type Props = {
   data: Omit<ProductType, "image_url"> & { image: string };
   owner: string;
@@ -33,38 +31,44 @@ const { TextArea } = Input;
 
 const ProductUpdate: React.FC<Props> = ({ data, id }) => {
   const useUPDATE = useUpdate(`product/${id}`);
-  const getCategories = useGET<CategoryType[]>(
+  // const [allCategories, setAllCategories] = React.useState<
+  //   Omit<CategoryType, "children">[] | null
+  // >(null);
+  const [form] = Form.useForm();
+  const [image, setImage] = React.useState<string>(data?.image);
+  const parentCategoryValue = Form.useWatch("category_id", form);
+  const useGETWithId = useGET<CategoryType[]>(
+    ["category", parentCategoryValue || data.category_id],
+    `category/children/${parentCategoryValue || data.category_id}`
+  );
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const category = useGET<Omit<CategoryType, "children">[]>(
     ["category"],
     "category/parents"
   );
-  const [form] = Form.useForm();
-  const parentCategory = Form.useWatch("category_id", form);
-  const useGETWithId = useGET<CategoryType[]>(
-    ["category", parentCategory || ""],
-    `category/children/${parentCategory}`
-  );
-  const queryClient = useQueryClient()
-  const [childCategoryId, setChildCategoryId] = React.useState<string>("");
-
+  const queryClient = useQueryClient();
   const handleSubmit = (formData: ProductType & { child_id: string }) => {
     const { child_id, ...datas } = {
       ...formData,
       characteristic: {},
       price: Number(formData.price),
       sale_price: Number(data.price),
-      category_id: childCategoryId ? childCategoryId : data.category_id,
-    } satisfies ProductType;
+      category_id: formData.child_id ? formData.child_id : data.category_id,
+      image_url: image,
+    } satisfies ProductType & { image_url: string };
+    setLoading(() => true);
     useUPDATE.mutate(datas as any, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey : ['products']
-        })
-        message.success("updated !")
+          queryKey: ["products"],
+        });
+        message.success("updated !");
+        setLoading(() => false);
       },
       onError: (err) => {
         console.log(err);
-
         message.error("error");
+        setLoading(() => false);
       },
     });
   };
@@ -152,7 +156,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
           name="image_url"
           initialValue={data?.image}
         >
-          <Input defaultValue={data?.image} placeholder="Image url"></Input>
+          <MyUpload setValue={setImage} defaultValue={data?.image}></MyUpload>
         </Form.Item>
         <Form.Item<ProductType>
           label="Created At"
@@ -186,6 +190,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
             placeholder="Select and search value"
             style={{ width: "100%" }}
             showSearch
+            loading={!category?.isSuccess}
             filterOption={(input, option) =>
               (option?.label.toLocaleLowerCase() ?? "").includes(
                 input.toLowerCase()
@@ -197,7 +202,7 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
                 .localeCompare((optionB?.label ?? "").toLowerCase())
             }
             options={
-              getCategories?.data?.data?.map((item) => ({
+              category?.data?.data?.map((item) => ({
                 key: item.id,
                 label: item.name_uz,
                 value: item.id,
@@ -210,54 +215,26 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
           name={"child_id"}
           initialValue={null}
         >
-          <Dropdown
-            overlayStyle={{
-              maxHeight: "300px",
-              overflowY: "scroll",
-            }}
+          <TreeSelect
+            showSearch
             disabled={!useGETWithId?.data?.data?.length}
-            menu={{
-              itemScope: true,
-              items: useGETWithId.data?.data?.map((item) => ({
-                key: item.id,
-                label: item.name_uz,
-                value: item.id,
-                children: item?.children
-                  ?.filter((item) => item)
-                  .map((item) => ({
-                    key: item?.id,
-                    label: item?.name_uz,
-                    value: item?.id,
-                  })),
-                icon: item.children?.[0] != null ? <DownOutlined /> : <></>,
-                onClick: (e) => {
-                  setChildCategoryId(() => e.key);
-                },
-                onTitleClick: (e) => {
-                  setChildCategoryId(() => e.key);
-                },
-              })),
-              expandIcon: <></>,
-              selectedKeys: [childCategoryId],
-            }}
-          >
-            <Space>
-              <Button disabled={!useGETWithId?.data?.data?.length}>
-                <Space>
-                  {childCategoryId
-                    ? flatten(useGETWithId?.data?.data as CategoryType[])?.find(
-                        (item) => item.id === childCategoryId
-                      )?.name_uz
-                    : "select.."}
-                  {}
-                  <DownOutlined />
-                </Space>
-              </Button>
-              <Button onClick={() => setChildCategoryId(() => "")}>
-                <DeleteOutlined color="red" />
-              </Button>
-            </Space>
-          </Dropdown>
+            loading={useGETWithId?.isLoading}
+            style={{ width: "100%" }}
+            dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
+            placeholder="Please select"
+            allowClear
+            onChange={(e) => console.log(e)}
+            treeData={useGETWithId?.data?.data?.map((item) => ({
+              title: item?.name_uz,
+              value: item?.id,
+              children: item?.children
+                ?.filter((item) => item)
+                .map((i: any) => ({
+                  title: i?.name_uz,
+                  value: i?.id,
+                })),
+            }))}
+          />
         </Form.Item>
         <Form.Item<ProductType>
           label="Description"
@@ -266,7 +243,9 @@ const ProductUpdate: React.FC<Props> = ({ data, id }) => {
         >
           <TextArea defaultValue={data?.description} rows={4} />
         </Form.Item>
-        <Button htmlType="submit">submit</Button>
+        <Button htmlType="submit" loading={loading} disabled={loading}>
+          submit
+        </Button>
       </Form>
     </div>
   );

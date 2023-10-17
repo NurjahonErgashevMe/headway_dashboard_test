@@ -14,7 +14,6 @@ const Add: React.FC = () => {
   const useCREATE = useCreate(`admin/category`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-
   const handleSubmit = (data: any) => {
     useCREATE.mutate(data, {
       onSuccess: async () => {

@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Button, Input, Form, message } from "antd";
 import classes from "./Update.module.scss";
 import { CategoryType } from "../../../types/category.type";
 import useUpdate from "../../../hooks/useUpdate";
 import { useQueryClient } from "@tanstack/react-query";
 import useGET from "../../../hooks/useGET";
+import Upload from "../../../components/Upload/Upload";
 type Props = {
   id: string;
 };
@@ -17,10 +18,10 @@ const CategoryUpdate: React.FC<Props> = ({ id }) => {
   const useUPDATE = useUpdate(`admin/category/${id}`);
   const item: (Omit<CategoryType, "image_url"> & { image: string }) | any =
     category?.data?.data.find((item) => item.id === id);
+  const [image, setImage] = useState<string>("");
   const queryClient = useQueryClient();
   const handleSubmit = (data: CategoryType & { image: string }) => {
-    console.log(data);
-    const { image, ...datas } = { ...data, image_url: data.image };
+    const { image : imagecha, ...datas } = { ...data, image_url: image };
     useUPDATE.mutate(datas as any, {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -72,7 +73,7 @@ const CategoryUpdate: React.FC<Props> = ({ id }) => {
           name="image"
           initialValue={item?.image}
         >
-          <Input defaultValue={item?.image} placeholder="Image url"></Input>
+          <Upload setValue={setImage} defaultValue={item?.image}></Upload>
         </Form.Item>
         <Button htmlType="submit">submit</Button>
       </Form>

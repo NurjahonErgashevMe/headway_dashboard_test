@@ -3,7 +3,7 @@ import { url } from "../../helpers";
 
 const Instance = axios.create({
   baseURL: url,
-  timeout: 10000,
+  timeout: Infinity,
   headers: {
     "Access-Control-Allow-Credentials": true,
     "Access-Control-Allow-Origin": "*",

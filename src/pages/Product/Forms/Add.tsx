@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
-import {
-  Button,
-  Form,
-  Input,
-  message,
-  InputNumber,
-  Dropdown,
-  Space,
-} from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, message, InputNumber, TreeSelect } from "antd";
 import classes from "./Add.module.scss";
 import { ProductType } from "../../../types/product.type";
 import useCreate from "../../../hooks/useCreate";
@@ -18,19 +10,20 @@ import { useStore } from "../../../utils/store/store";
 import { Select } from "antd/lib";
 import { CategoryType } from "../../../types/category.type";
 import useGET from "../../../hooks/useGET";
-import { DownOutlined, DeleteOutlined } from "@ant-design/icons";
-import { flatten } from "../../../helpers";
+import MyUpload from "../../../components/Upload/Upload";
 const Add: React.FC = () => {
   const { category } = useStore();
   const useCREATE = useCreate(`product`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  const [childCategoryId, setChildCategoryId] = React.useState<string>("");
+  const [image, setImage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const parentCategory = Form.useWatch("category_id", form);
   const useGETWithId = useGET<CategoryType[]>(
     ["category", parentCategory || ""],
     `category/children/${parentCategory}`
   );
+  console.log(useGETWithId);
 
   const handleSubmit = (
     data: Omit<ProductType, "id"> & { child_id: string; color: string }
@@ -38,25 +31,26 @@ const Add: React.FC = () => {
     const { color, child_id, ...datas } = {
       ...data,
       characteristic: { color: data?.color },
-      category_id: childCategoryId ? childCategoryId : data.category_id,
+      category_id: data.child_id || data.category_id,
+      image_url: image,
     };
+    setLoading(() => true);
     useCREATE.mutate(datas as any, {
       onSuccess: async () => {
         queryClient.invalidateQueries({
           queryKey: ["products"],
         });
         message.success("added!");
+        setLoading(() => false);
         form.resetFields();
-        setChildCategoryId(()=>"")
       },
       onError: (err) => {
         console.log(err);
-        message.error("error");
+        message.error("error!");
+        setLoading(() => false);
       },
-      
     });
   };
-
   return (
     <div className={classes.add}>
       <Form
@@ -65,6 +59,13 @@ const Add: React.FC = () => {
         autoComplete="off"
         className={classes.form}
         form={form}
+        onFinishFailed={(e) =>
+          form.scrollToField(e.errorFields[0].name, {
+            behavior: "smooth",
+            scrollMode: "always",
+            skipOverflowHiddenElements: true,
+          })
+        }
       >
         <Form.Item<ProductType>
           name={"name_uz"}
@@ -90,15 +91,28 @@ const Add: React.FC = () => {
         <Form.Item<Omit<ProductType, "image"> & { image_url: string }>
           name={"image_url"}
           label={"Image url"}
-          initialValue={""}
+          rules={[
+            {
+              required: !image,
+              message: "Upload is required",
+              validator: () =>
+                image !== ""
+                  ? Promise.resolve()
+                  : Promise.reject(
+                      new Error(
+                        "The new password that you entered do not match!"
+                      )
+                    ),
+            },
+          ]}
         >
-          <Input defaultValue={""}></Input>
+          <MyUpload setValue={setImage}></MyUpload>
         </Form.Item>
         <Form.Item<ProductType>
           name={"category_id"}
           label={"Category"}
           initialValue={null}
-          required
+          rules={[{ required: true, message: "Category is required" }]}
         >
           <Select
             placeholder="Select and search value"
@@ -129,55 +143,27 @@ const Add: React.FC = () => {
           label={"Child Category"}
           initialValue={null}
         >
-          <Dropdown
-            overlayStyle={{
-              height : "300px",
-              overflowY: "scroll"
-            }}
+          <TreeSelect
+            showSearch
             disabled={!useGETWithId?.data?.data?.length}
-            menu={{
-              itemScope: true,
-              items: useGETWithId.data?.data?.map((item) => ({
-                key: item.id,
-                label: item.name_uz,
-                value: item.id,
-                children: item?.children
-                  ?.filter((item) => item)
-                  .map((item) => ({
-                    key: item?.id,
-                    label: item?.name_uz,
-                    value: item?.id,
-                  })),
-                icon: item.children?.[0] != null ? <DownOutlined /> : <></>,
-                onClick: (e) => {
-                  setChildCategoryId(() => e.key);
-                },
-                onTitleClick: (e) => {
-                  setChildCategoryId(() => e.key);
-                },
-              })),
-              expandIcon: <></>,
-              // defaultSelectedKeys: [childCategoryId],
-              selectedKeys: [childCategoryId],
-            }}
-          >
-            <Space >
-              <Button>
-                <Space>
-                  {childCategoryId
-                    ? flatten(useGETWithId?.data?.data as CategoryType[])?.find(
-                        (item) => item.id === childCategoryId
-                      )?.name_uz
-                    : "select.."}
-                  {}
-                  <DownOutlined />
-                </Space>
-              </Button>
-              <Button onClick={() => setChildCategoryId(() => "")}>
-                <DeleteOutlined  color="red" />
-              </Button>
-            </Space>
-          </Dropdown>
+            loading={useGETWithId?.isLoading}
+            style={{ width: "100%" }}
+            dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
+            placeholder="Please select"
+            allowClear
+            onChange={(e) => console.log(e)}
+            treeNodeFilterProp="title"
+            treeData={useGETWithId?.data?.data?.map((item) => ({
+              title: item?.name_uz,
+              value: item?.id,
+              children: item?.children
+                ?.filter((item) => item)
+                .map((i: any) => ({
+                  title: i?.name_uz,
+                  value: i?.id,
+                })),
+            }))}
+          />
         </Form.Item>
         <Form.Item<ProductType> name={"price"} label={"Price"} initialValue={0}>
           <InputNumber defaultValue={0}></InputNumber>
@@ -210,7 +196,9 @@ const Add: React.FC = () => {
         <Form.Item<ProductType> name={"description"} label="Description">
           <Input.TextArea></Input.TextArea>
         </Form.Item>
-        <Button htmlType="submit">add</Button>
+        <Button htmlType="submit" loading={loading} disabled={loading}>
+          add
+        </Button>
       </Form>
     </div>
   );
