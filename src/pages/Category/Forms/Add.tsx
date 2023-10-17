@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Checkbox,
@@ -30,7 +30,7 @@ const Add: React.FC = () => {
     ["category", parentCategory || ""],
     `category/children/${parentCategory}`
   );
-
+  const [loading, setLoading] = useState<boolean>(false);
   const handleSubmit = (data: CategoryType & { child_id: string }) => {
     const { child_id, ...datas }: CategoryType & { child_id: string } = {
       ...data,
@@ -41,7 +41,7 @@ const Add: React.FC = () => {
         : data.parent_id,
       image_url: image,
     };
-
+    setLoading(() => true);
     useCREATE.mutate(datas as any, {
       onSuccess: async () => {
         queryClient.invalidateQueries({
@@ -49,12 +49,14 @@ const Add: React.FC = () => {
         });
         category.refetch();
         message.success("added!");
+        setLoading(() => false);
 
         form.resetFields();
       },
       onError: (err) => {
         console.log(err);
         message.error("error");
+        setLoading(() => false);
       },
     });
   };
@@ -91,23 +93,22 @@ const Add: React.FC = () => {
         <Form.Item<CategoryType>
           name={"image_url"}
           label={"Image url"}
+          hidden={!form.getFieldValue("parent_id_its")}
           initialValue={""}
-          rules={[
-            {
-              required: !image,
-              message: "Upload is required",
-              validator: () => {
-                if (form.getFieldValue("parent_id")) {
-                  if (!image) {
-                    return Promise.resolve();
-                  }
-                }
-                return Promise.reject(
-                  new Error("The new password that you entered do not match!")
-                );
-              },
-            },
-          ]}
+          // rules={[
+          //   {
+          //     required: !image,
+          //     message: "Upload is required",
+          //     // validator: () => {
+          //     //   if (form.getFieldValue("parent_id")) {
+          //     //     if (!image) {
+          //     //       return Promise.resolve();
+          //     //     }
+
+          //     //   }
+          //     // },
+          //   },
+          // ]}
         >
           <Upload setValue={setImage}></Upload>
         </Form.Item>
@@ -132,6 +133,7 @@ const Add: React.FC = () => {
           label={"Parent category"}
           initialValue={null}
           hidden={parentIdIts}
+          // rules={[{required : true,message : "Parent category is required" }]}
         >
           <Select
             disabled={parentIdIts}
@@ -185,7 +187,7 @@ const Add: React.FC = () => {
             }))}
           />
         </Form.Item>
-        <Button htmlType="submit">add</Button>
+        <Button htmlType="submit" loading={loading} disabled={loading}>add</Button>
       </Form>
     </div>
   );

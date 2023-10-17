@@ -13,7 +13,7 @@ const CustomAvatar: React.FC<Props> = ({ user }) => (
   <div className={classes.avatar} style={{cursor : "pointer"}}>
     <Avatar size="large" icon={<UserOutlined />} />
     <div className={classes.user_name}>
-      <p>{user.first_name}</p> <p>{user.last_name}</p>
+      <p>{user?.first_name}</p> <p>{user?.last_name}</p>
     </div>
   </div>
 );
