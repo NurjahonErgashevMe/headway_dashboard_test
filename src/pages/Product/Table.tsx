@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
-import { memo } from "react";
+import { memo, useState } from "react";
 import Table, { TableProps } from "antd/es/table";
 import Image from "antd/es/image";
 import Tag from "antd/es/tag";
@@ -42,6 +42,7 @@ const ImageWrapperStyles: React.CSSProperties = {
 const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
   const useDELETE = useDelete(`admin/product`);
   const queryClient = useQueryClient();
+  const [loading, setLoading] = useState<boolean>(false);
   const ModalViewHandler = (id: string) => {
     const finded: ProductType = data.find((item) => item.id == id) || data[0];
 
@@ -61,20 +62,36 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
   };
   const ModalDeleteHandler = (id: string) => {
     NiceModal.show(MyModal, {
-      children: <h2>Do you want delete this?</h2>,
+      children: (
+        <div>
+          <h2>Do you want delete this?</h2>
+          <Button
+            style={{ color: "red", borderColor: "red" }}
+            loading={loading}
+            disabled={loading}
+            onClick={() => {
+              setLoading(() => true);
+              useDELETE.mutate(id as any, {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ["products"],
+                  });
+                  message.success("deleted!");
+                  setLoading(() => false);
+                },
+                onError: () => {
+                  message.error("error!");
+                  setLoading(() => false);
+                },
+              });
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
       variant: "view",
-      onOk: () =>
-        useDELETE.mutate(id as any, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: ["products"],
-            });
-            message.success("deleted!");
-          },
-          onError: () => {
-            message.error("error!");
-          },
-        }),
+      okButton : false
     });
   };
   // const ModalUpdateandler = (data: ProductType) => {

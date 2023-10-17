@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useState } from "react";
 import { Button, Form, Input, message } from "antd";
 import classes from "./index.module.scss";
 import { useCookies } from "react-cookie";
@@ -19,27 +19,27 @@ const Login: React.FC = () => {
   const [_, setCookies] = useCookies(["token", "phone"]);
   const usePOST = useCreate("user/login");
   const navigate = useNavigate();
-  // setCookies(
-  //   "token",
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MjZmMThjYzRhZTA2YzFlZTViZTZiYiIsImlhdCI6MTY5NzA1MTE3N30.WqRE0PCy44-cOwL023GfO8JVuclHfCsgG2neiDqRoj4"
-  // );
-  // setCookies("phone", "998941250709");
+  const [loading, setLoading] = useState<boolean>(false);
   const onFinish = (values: FieldType) => {
+    setLoading(() => true);
     try {
       usePOST.mutate(values as any, {
         onSuccess: (data) => {
           setCookies("phone", String(values.phone));
           setCookies("token", data.data);
           navigate("/");
+          setLoading(() => false);
+
           return message.success("logged in!");
         },
         onError: (err) => {
           console.log(err);
-
+          setLoading(() => false);
           message.error("error  login");
         },
       });
     } catch (err) {
+      setLoading(() => false);
       console.log(err);
     }
   };
@@ -64,7 +64,12 @@ const Login: React.FC = () => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading}
+          >
             Login
           </Button>
         </Form.Item>
