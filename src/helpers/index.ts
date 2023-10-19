@@ -1,4 +1,4 @@
-const url = "http://194.163.142.231:3000";
+const url = "https://www.stroy-store-backend.uz/api";
 export { url  };
 export { default as flatten} from './flutten';
 export { default as mask} from './mask';
