@@ -6,13 +6,13 @@ import { UserTypes } from "../../types/user.type";
 type CategoryStore = {
   category: CategoryType[] | null;
   setCategory: (data: CategoryType[]) => void;
-  users: UserTypes[] | null;
-  setUsers: (data: UserTypes[]) => void;
+  user: UserTypes | null;
+  setUser: (data: UserTypes) => void;
 };
 
 export const useStore = create<CategoryStore>()((set) => ({
   category: null,
   setCategory: (data) => set(() => ({ category: data })),
-  users: null,
-  setUsers: (data) => set(() => ({ users: data })),
+  user: null,
+  setUser: (data) => set(() => ({ user: data })),
 }));

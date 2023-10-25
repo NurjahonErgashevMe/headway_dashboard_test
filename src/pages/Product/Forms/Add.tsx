@@ -6,13 +6,12 @@ import classes from "./Add.module.scss";
 import { ProductType } from "../../../types/product.type";
 import useCreate from "../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStore } from "../../../utils/store/store";
 import { Select } from "antd/lib";
 import { CategoryType } from "../../../types/category.type";
 import useGET from "../../../hooks/useGET";
 import MyUpload from "../../../components/Upload/Upload";
 const Add: React.FC = () => {
-  const { category } = useStore();
+  const category = useGET<CategoryType[]>(['category parent'],'category/parents')
   const useCREATE = useCreate(`product`);
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
@@ -23,7 +22,6 @@ const Add: React.FC = () => {
     ["category", parentCategory || ""],
     `category/children/${parentCategory}`
   );
-  console.log(useGETWithId);
 
   const handleSubmit = (
     data: Omit<ProductType, "id"> & { child_id: string; color: string }
@@ -94,7 +92,7 @@ const Add: React.FC = () => {
           rules={[
             {
               required: !image,
-              message: "Upload is required",
+              message: "Rasm joylash kerak!",
               validator: () =>
                 image !== ""
                   ? Promise.resolve()
@@ -119,6 +117,8 @@ const Add: React.FC = () => {
             allowClear
             style={{ width: "100%" }}
             showSearch
+            loading={category?.isLoading}
+            disabled={!category?.data?.data?.length}
             filterOption={(input, option) =>
               (option?.label.toLocaleLowerCase() ?? "").includes(
                 input.toLowerCase()
@@ -130,7 +130,7 @@ const Add: React.FC = () => {
                 .localeCompare((optionB?.label ?? "").toLowerCase())
             }
             options={
-              category?.map((item) => ({
+              category?.data?.data.map((item) => ({
                 key: item.id,
                 label: item.name_uz,
                 value: item.id,

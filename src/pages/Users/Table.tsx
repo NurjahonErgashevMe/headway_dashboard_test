@@ -75,40 +75,40 @@ const UserTable: React.FC<Props> = ({ data }) => {
       >
         <Column
           key={"last_name"}
-          title={"Fisrtname"}
+          title={"Ism"}
           render={(record: UserType) => <p>{record.first_name}</p>}
         ></Column>
         <Column
-          title={"last_name"}
-          key={"Lastname"}
+          title={"Familiya"}
+          key={"last_name"}
           render={(record: UserType) => <p>{record.last_name}</p>}
         ></Column>
         <Column
           key={"phone"}
-          title={"Phone"}
+          title={"Telefon raqam"}
           render={(record: UserType) => <p>{record.phone}</p>}
         ></Column>
         <Column
           key={"created_at"}
-          title={"Created at"}
+          title={"Yaratilgan sana"}
           render={(record: UserType) => (
             <Tag color="green">{DateUTC(record.created_at)}</Tag>
           )}
         ></Column>
         <Column
           key={"role"}
-          title={"Role"}
+          title={"Roli"}
           render={(record: UserType) => <Tag color="red">{record.role}</Tag>}
         ></Column>
         <Column
           key={"status"}
-          title={"Status"}
+          title={"Statusi"}
           render={(record: UserType) => <p>{record.status}</p>}
         ></Column>
 
         <Column
           key={"actions"}
-          title={"Actions"}
+          title={""}
           render={(record: UserType) => (
             <Space>
               {/* <Tooltip title="edit">

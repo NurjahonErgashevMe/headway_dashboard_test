@@ -13,19 +13,18 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import DateUTC from "../../hooks/useDateUTC";
-import GetParamsWithFInd from "../../hooks/useGetParamsWithFind";
 import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
 import ProductView from "./Forms/View";
 import useDelete from "../../hooks/useDelete";
 import { message } from "antd";
 import { ProductType } from "../../types/product.type";
-import { UserTypes } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserTypes } from "../../types/user.type";
 // import Update from "./Forms/Update";
 interface Props extends TableProps<any> {
   data: ProductType[];
-  users: UserTypes[];
+  user: UserTypes;
 }
 
 const TableWrapper: React.CSSProperties = {
@@ -39,7 +38,7 @@ const ImageWrapperStyles: React.CSSProperties = {
   height: "100px",
 };
 
-const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
+const ProductTable: React.FC<Props> = ({ data, user, ...props }) => {
   const useDELETE = useDelete(`admin/product`);
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState<boolean>(false);
@@ -50,10 +49,7 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
       children: (
         <ProductView
           data={finded}
-          owner={GetParamsWithFInd(users, "id", finded.owner_id, [
-            "first_name",
-            "last_name",
-          ])}
+          owner={`${user?.first_name} ${user?.last_name}`}
         />
       ),
       variant: "view",
@@ -91,25 +87,10 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
         </div>
       ),
       variant: "view",
-      okButton : false
+      okButton: false,
     });
   };
-  // const ModalUpdateandler = (data: ProductType) => {
-  //   NiceModal.show(MyModal, {
-  //     children: (
-  //       <Update
-  //         data={data}
-  //         owner={GetParamsWithFInd(users, "id", data.owner_id, [
-  //           "first_name",
-  //           "last_name",
-  //         ])}
-  //         id={data.id}
-  //       />
-  //     ),
-  //     variant: "update",
-  //     okButton: false,
-  //   });
-  // };
+
   return (
     <div style={TableWrapper}>
       <Table
@@ -123,12 +104,12 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
       >
         <Column
           key={"name_uz"}
-          title={"Name uz"}
+          title={"Nom o'zbekcha"}
           render={(record: ProductType) => <p>{record.name_uz}</p>}
         ></Column>
         <Column
           key={"name_ru"}
-          title={"Name ru"}
+          title={"Nom ruscha"}
           render={(record: ProductType) => <p>{record.name_ru}</p>}
         ></Column>
         <Column
@@ -138,43 +119,31 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
         ></Column>
         <Column
           key={"sale_price"}
-          title={"Sale price"}
+          title={"Skidkadagi narx"}
           render={(record: ProductType) => (
             <Tag color="green">{record.sale_price || null}</Tag>
           )}
         ></Column>
         <Column
           key={"price"}
-          title={"Price"}
+          title={"Narxi"}
           render={(record: ProductType) => (
             <Tag color="red">{record.price}</Tag>
           )}
         ></Column>
         <Column
           key={"count"}
-          title={"Count"}
+          title={"Soni"}
           render={(record: ProductType) => <p>{record.count}</p>}
         ></Column>
         <Column
           key={"date"}
-          title={"Created date"}
+          title={"Qoshilgan sanasi"}
           render={(record: ProductType) => <p>{DateUTC(record.created_at)} </p>}
         ></Column>
         <Column
-          key={"creator"}
-          title={"Created by"}
-          render={(record: ProductType) => (
-            <p>
-              {GetParamsWithFInd(users, "id", record.owner_id, [
-                "first_name",
-                "last_name",
-              ])}
-            </p>
-          )}
-        ></Column>
-        <Column
           key={"image"}
-          title={"Image"}
+          title={"Rasm"}
           render={(
             record: Omit<ProductType, "image_url"> & { image: string }
           ) => (
@@ -193,7 +162,7 @@ const ProductTable: React.FC<Props> = ({ data, users, ...props }) => {
         ></Column>
         <Column
           key={"actions"}
-          title={"Actions"}
+          title={""}
           render={(record: ProductType) => (
             <Space>
               {/* <Tooltip title="edit">

@@ -82,17 +82,17 @@ const ProductTable: React.FC<Props> = ({ data }) => {
       >
         <Column
           key={"name_uz"}
-          title={"Name uz"}
+          title={"Nom o'zbekcha"}
           render={(record: CategoryType) => <p>{record.name_uz}</p>}
         ></Column>
         <Column
           key={"name_ru"}
-          title={"Name ru"}
+          title={"Nom ruschca"}
           render={(record: CategoryType) => <p>{record.name_ru}</p>}
         ></Column>
         <Column
           key={"name_lat"}
-          title={"Name lat"}
+          title={"Nom lotincha"}
           render={(record: CategoryType) => <p>{record.name_lat}</p>}
         ></Column>
         <Column

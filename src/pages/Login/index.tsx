@@ -29,7 +29,6 @@ const Login: React.FC = () => {
           setCookies("token", data.data);
           navigate("/");
           setLoading(() => false);
-
           return message.success("logged in!");
         },
         onError: (err) => {
