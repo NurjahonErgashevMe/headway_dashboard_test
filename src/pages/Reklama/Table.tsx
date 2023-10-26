@@ -28,23 +28,36 @@ const ProductTable: React.FC<Props> = ({ data }) => {
   const useDELETE = useDelete(`admin/ads`);
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const ModalDeleteHandler = (id: string) => {
     setLoading(() => true);
+    const key = "delete-add";
+    messageApi.open({
+      key,
+      type: "loading",
+      content: "O'chirilmoqda...",
+    });
     useDELETE.mutate(id as any, {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ["reklama"],
         });
         setLoading(() => false);
-        setOpen(() => false);
-        return message.success("O'chirildi!");
+        return messageApi.open({
+          key,
+          type: "success",
+          content: "O'chirildi",
+        });
       },
       onError: () => {
         setLoading(() => false);
-        setOpen(() => false);
 
-        return message.error("Hatolik!");
+        return messageApi.open({
+          key,
+          type: "error",
+          content: "O'chirilmoqda...",
+        });
       },
     });
   };
@@ -57,6 +70,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
   };
   return (
     <div style={TableWrapper}>
+      {contextHolder}
       <Table dataSource={data?.map((item) => ({ ...item, key: item.id }))}>
         <Column
           key={"title"}
@@ -99,11 +113,9 @@ const ProductTable: React.FC<Props> = ({ data }) => {
                 onConfirm={() => ModalDeleteHandler(record.id)}
                 okText="Ha "
                 cancelText="No"
-                open={open}
-                onCancel={() => setOpen(() => false)}
                 okButtonProps={{ loading, disabled: loading }}
               >
-                <Button danger onClick={() => setOpen((prev) => !prev)}>
+                <Button danger>
                   <DeleteOutlined />
                 </Button>
               </Popconfirm>

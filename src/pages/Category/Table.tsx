@@ -15,7 +15,7 @@ import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
 import View from "./Forms/View";
 import useDelete from "../../hooks/useDelete";
-import { Image, message } from "antd";
+import { Image, Popconfirm, message } from "antd";
 import { CategoryType } from "../../types/category.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Update from "./Forms/Update";
@@ -33,6 +33,8 @@ const { Column } = Table;
 const ProductTable: React.FC<Props> = ({ data }) => {
   const useDELETE = useDelete(`admin/category`);
   const queryClient = useQueryClient();
+  const [messageApi, contextHolder] = message.useMessage();
+
   const ModalViewHandler = (id: string) => {
     const finded: CategoryType = data.find((item) => item.id == id) || data[0];
 
@@ -43,24 +45,33 @@ const ProductTable: React.FC<Props> = ({ data }) => {
     });
   };
   const ModalDeleteHandler = (id: string) => {
-    NiceModal.show(MyModal, {
-      children: <h2>Do you want delete this?</h2>,
-      variant: "delete",
-      onOk: () =>
-        useDELETE.mutate(id as any, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: ["category"],
-            });
-            message.success("deleted!");
-          },
-          onError: () => {
-            message.error("error!");
-          },
-        }),
+    const key = "delete-category";
+    messageApi.open({
+      key,
+      type: "loading",
+      content: "O'chirilmoqda...",
+    });
+    useDELETE.mutate(id as any, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["category"],
+        });
+        return messageApi.open({
+          key,
+          type: "success",
+          content: "O'chirildi",
+        });
+      },
+      onError: () => {
+        return messageApi.open({
+          key,
+          type: "error",
+          content: "Hatolik",
+        });
+      },
     });
   };
-  const ModalUpdateandler = (id: string  ) => {
+  const ModalUpdateandler = (id: string) => {
     NiceModal.show(MyModal, {
       children: <Update id={id} />,
       variant: "update",
@@ -77,9 +88,8 @@ const ProductTable: React.FC<Props> = ({ data }) => {
   };
   return (
     <div style={TableWrapper}>
-      <Table
-        dataSource={data?.map((item) => ({ ...item, key: item.id }))}
-      >
+      {contextHolder}
+      <Table dataSource={data?.map((item) => ({ ...item, key: item.id }))}>
         <Column
           key={"name_uz"}
           title={"Nom o'zbekcha"}
@@ -111,19 +121,22 @@ const ProductTable: React.FC<Props> = ({ data }) => {
               <Tooltip title="edit">
                 <Button
                   shape="circle"
-                  onClick={() => ModalUpdateandler(record.id )}
+                  onClick={() => ModalUpdateandler(record.id)}
                 >
                   <EditOutlined />
                 </Button>
               </Tooltip>
-              <Tooltip title="delete">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalDeleteHandler(record.id)}
-                >
+              <Popconfirm
+                title="O'chirishni xohlaysizmi?"
+                description=""
+                onConfirm={() => ModalDeleteHandler(record.id)}
+                okText="Ha "
+                cancelText="No"
+              >
+                <Button danger>
                   <DeleteOutlined />
                 </Button>
-              </Tooltip>
+              </Popconfirm>
               <Tooltip title="view">
                 <Button
                   shape="circle"

@@ -17,7 +17,7 @@ import { useDebounce } from "usehooks-ts";
 function Products() {
   const { data, isLoading, isError, isSuccess } = useGET<ProductType[]>(
     ["products"],
-    "/admin/category/all"
+    "/product/my"
   );
   const [value, setValue] = useState<string>("");
   const [searchBy, setSearchBy] = useState<"name_uz" | "name_ru" | "name_lat">(

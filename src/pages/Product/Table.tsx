@@ -17,7 +17,7 @@ import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
 import ProductView from "./Forms/View";
 import useDelete from "../../hooks/useDelete";
-import { message } from "antd";
+import { Popconfirm, message } from "antd";
 import { ProductType } from "../../types/product.type";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserTypes } from "../../types/user.type";
@@ -42,6 +42,7 @@ const ProductTable: React.FC<Props> = ({ data, user, ...props }) => {
   const useDELETE = useDelete(`admin/product`);
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const ModalViewHandler = (id: string) => {
     const finded: ProductType = data.find((item) => item.id == id) || data[0];
 
@@ -57,42 +58,41 @@ const ProductTable: React.FC<Props> = ({ data, user, ...props }) => {
     });
   };
   const ModalDeleteHandler = (id: string) => {
-    NiceModal.show(MyModal, {
-      children: (
-        <div>
-          <h2>Do you want delete this?</h2>
-          <Button
-            style={{ color: "red", borderColor: "red" }}
-            loading={loading}
-            disabled={loading}
-            onClick={() => {
-              setLoading(() => true);
-              useDELETE.mutate(id as any, {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({
-                    queryKey: ["products"],
-                  });
-                  message.success("deleted!");
-                  setLoading(() => false);
-                },
-                onError: () => {
-                  message.error("error!");
-                  setLoading(() => false);
-                },
-              });
-            }}
-          >
-            Delete
-          </Button>
-        </div>
-      ),
-      variant: "view",
-      okButton: false,
+    const key = "delete";
+    setLoading(() => true);
+    messageApi.open({
+      key,
+      type: "loading",
+      content: "O'chirilmoqda...",
+    });
+    useDELETE.mutate(id as any, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["products"],
+        });
+        messageApi.open({
+          key,
+          type: "success",
+          content: "O'chirildi!",
+          duration: 2,
+        });
+        setLoading(() => false);
+      },
+      onError: () => {
+        messageApi.open({
+          key,
+          type: "error",
+          content: "Hatolik!",
+          duration: 2,
+        });
+        setLoading(() => false);
+      },
     });
   };
 
   return (
     <div style={TableWrapper}>
+      {contextHolder}
       <Table
         expandable={{
           expandedRowRender: (record) => (
@@ -173,14 +173,18 @@ const ProductTable: React.FC<Props> = ({ data, user, ...props }) => {
                   <EditOutlined />
                 </Button>
               </Tooltip> */}
-              <Tooltip title="delete">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalDeleteHandler(record.id)}
-                >
+              <Popconfirm
+                title="O'chirishni xohlaysizmi?"
+                description=""
+                onConfirm={() => ModalDeleteHandler(record.id)}
+                okText="Ha "
+                cancelText="No"
+                okButtonProps={{ loading, disabled: loading }}
+              >
+                <Button danger>
                   <DeleteOutlined />
                 </Button>
-              </Tooltip>
+              </Popconfirm>
               <Tooltip title="view">
                 <Button
                   shape="circle"
