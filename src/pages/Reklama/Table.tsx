@@ -32,7 +32,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
 
   const ModalDeleteHandler = (id: string) => {
     setLoading(() => true);
-    const key = "delete-add";
+    const key = "delete-ad";
     messageApi.open({
       key,
       type: "loading",
@@ -56,7 +56,7 @@ const ProductTable: React.FC<Props> = ({ data }) => {
         return messageApi.open({
           key,
           type: "error",
-          content: "O'chirilmoqda...",
+          content: "Hatolik",
         });
       },
     });

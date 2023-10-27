@@ -16,7 +16,7 @@ import NiceModal from "@ebay/nice-modal-react";
 import MyModal from "../../components/Modal/Modal";
 import UserView from "./Forms/View";
 import useDelete from "../../hooks/useDelete";
-import { message } from "antd";
+import { Popconfirm, message } from "antd";
 import { UserTypes as UserType } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
 // import Update from "./Forms/Update";
@@ -33,6 +33,7 @@ const { Column } = Table;
 const UserTable: React.FC<Props> = ({ data }) => {
   const useDELETE = useDelete(`admin/users`);
   const queryClient = useQueryClient();
+  const [messageApi, contentBox] = message.useMessage();
   const ModalViewHandler = (id: string) => {
     const finded: UserType = data.find((item) => item.id == id) || data[0];
 
@@ -43,21 +44,30 @@ const UserTable: React.FC<Props> = ({ data }) => {
     });
   };
   const ModalDeleteHandler = (id: string) => {
-    NiceModal.show(MyModal, {
-      children: <h2>Do you want delete this?</h2>,
-      variant: "view",
-      onOk: () =>
-        useDELETE.mutate(id as any, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: ["users"],
-            });
-            message.success("deleted!");
-          },
-          onError: () => {
-            message.error("error!");
-          },
-        }),
+    const key = "delete-user";
+    messageApi.open({
+      key,
+      type: "loading",
+      content: "O'chirilmoqda...",
+    });
+    useDELETE.mutate(id as any, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["users"],
+        });
+        return messageApi.open({
+          key,
+          type: "success",
+          content: "O'chirildi",
+        });
+      },
+      onError: () => {
+        return messageApi.open({
+          key,
+          type: "error",
+          content: "Hatolik",
+        });
+      },
     });
   };
   // const ModalUpdateandler = (id: string) => {
@@ -70,6 +80,7 @@ const UserTable: React.FC<Props> = ({ data }) => {
   // };
   return (
     <div style={TableWrapper}>
+      {contentBox}
       <Table
         dataSource={data?.map((item, index) => ({ ...item, key: index + 1 }))}
       >
@@ -119,14 +130,17 @@ const UserTable: React.FC<Props> = ({ data }) => {
                   <EditOutlined />
                 </Button>
               </Tooltip> */}
-              <Tooltip title="delete">
-                <Button
-                  shape="circle"
-                  onClick={() => ModalDeleteHandler(record.id)}
-                >
+              <Popconfirm
+                title="O'chirishni xohlaysizmi?"
+                description=""
+                onConfirm={() => ModalDeleteHandler(record.id)}
+                okText="Ha "
+                cancelText="No"
+              >
+                <Button danger>
                   <DeleteOutlined />
                 </Button>
-              </Tooltip>
+              </Popconfirm>
               <Tooltip title="view">
                 <Button
                   shape="circle"

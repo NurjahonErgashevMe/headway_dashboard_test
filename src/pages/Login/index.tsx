@@ -12,7 +12,7 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 type FieldType = {
-  phone: string;
+  email: string;
 };
 
 const Login: React.FC = () => {
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
     try {
       usePOST.mutate(values as any, {
         onSuccess: (data) => {
-          setCookies("phone", String(values.phone));
+          setCookies("phone", String(values.email));
           setCookies("token", data.data);
           navigate("/");
           setLoading(() => false);
@@ -55,9 +55,9 @@ const Login: React.FC = () => {
         autoComplete="off"
       >
         <Form.Item<FieldType>
-          label="phone"
-          name="phone"
-          rules={[{ required: true, message: "Please input your phone!" }]}
+          label="email"
+          name="email"
+          rules={[{ required: true, message: "Iltimos email kiriting!" }]}
         >
           <Input />
         </Form.Item>

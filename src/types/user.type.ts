@@ -8,5 +8,17 @@ export type UserTypes = {
   is_deleted: boolean;
   created_at: string;
   status: number;
-  email : string
+  email: string;
 };
+
+export type TUserSignup = {
+  phone: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+};
+
+export type TUserConfirmOtp = {
+  email : string;
+  otp : string;
+}
