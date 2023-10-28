@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Button, Form, Input, InputNumber, message } from "antd";
+import { Button, Form, Input, InputNumber, Segmented, message } from "antd";
 import classes from "./index.module.scss";
 import useCreate from "../../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
@@ -104,9 +104,9 @@ const Confirm: React.FC<{
   const [form] = Form.useForm();
   const handleSubmit = (data: TUserConfirmOtp): void => {
     setLoading(() => true);
-    data = { otp : data.otp.toString(), email: `${email}` };
+    data = { otp: data.otp.toString(), email: `${email}` };
     console.log(data);
-    
+
     useCREATE.mutate(data as any, {
       onSuccess: (data: AxiosResponse<string>) => {
         setLoading(() => false);
