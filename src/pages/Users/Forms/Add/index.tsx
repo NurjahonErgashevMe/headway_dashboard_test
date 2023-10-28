@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Button, Form, Input, InputNumber, Segmented, message } from "antd";
+import { Button, Form, Input, InputNumber, message } from "antd";
 import classes from "./index.module.scss";
 import useCreate from "../../../../hooks/useCreate";
 import { useQueryClient } from "@tanstack/react-query";
