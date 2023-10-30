@@ -5,12 +5,13 @@ import { url } from "../helpers/index";
 import { useCookies } from "react-cookie";
 
 const useCreate = (urlPath: string, options?: MutationOptions) => {
-  const [cookie] = useCookies(["token"]);
+  const [cookie] = useCookies(["token", "basic"]);
   return useMutation(
     (data: any) =>
       Instance.post(`${url}/${urlPath}`, data, {
         headers: {
           Authorization: cookie.token,
+          basic: cookie.basic,
         },
       }),
     options

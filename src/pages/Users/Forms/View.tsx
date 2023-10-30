@@ -4,6 +4,7 @@ import { Input, Select } from "antd";
 import classes from "./View.module.scss";
 import { UserTypes as UserType } from "../../../types/user.type";
 import DateUTC from "../../../hooks/useDateUTC";
+import { UserRoles } from "../../../enums";
 type Props = {
   data: UserType;
 };
@@ -18,9 +19,8 @@ const UserView: React.FC<Props> = ({ data }) => {
       <Input value={DateUTC(data?.created_at)} placeholder="Phone"></Input>
 
       <Select
-        mode="tags"
         placeholder="Please select"
-        value={data?.role}
+        value={UserRoles[data?.role]}
         style={{ width: "100%" }}
       />
     </div>

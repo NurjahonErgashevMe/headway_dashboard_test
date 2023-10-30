@@ -17,13 +17,14 @@ const useGET = <T>(
   url: string,
   options?: OptionsType
 ): UseQueryResult<{ data: T }> => {
-  const [cookie] = useCookies(["token"]);
+  const [cookie] = useCookies(["token", "basic"]);
   return useQuery(
     keys,
     () =>
       Instance.get(url, {
         headers: {
           Authorization: cookie.token,
+          basic: cookie.basic,
         },
       }),
     options

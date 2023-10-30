@@ -36,7 +36,8 @@ function Products() {
   if (isError) {
     return <Error code={"123"} />;
   }
-
+  console.log(data);
+  
   if (isSuccess && users.isSuccess) {
     const user = users.data.data.find(
       (i) => i.phone === String(cookie.phone)

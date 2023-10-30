@@ -57,6 +57,7 @@ const ProductTable: React.FC<Props> = ({ data, user, ...props }) => {
       okButton: false,
     });
   };
+  
   const ModalDeleteHandler = (id: string) => {
     const key = "delete";
     setLoading(() => true);

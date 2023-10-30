@@ -13,13 +13,13 @@ import {
   // message,
 } from "antd";
 import classes from "./Sidebar.module.scss";
-import routes from "../../../route/Routes";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserTypes } from "../../../types/user.type";
 import CustomAvatar from "./Avatar/Avatar";
 import { useCookies } from "react-cookie";
 // import MyModal from "../../Modal/Modal";
 import type { MenuProps } from "antd";
+import MyRoutes from "../../../route/Routes";
 // import useUpdate from "../../../hooks/useUpdate";
 // import NiceModal from "@ebay/nice-modal-react";
 // import MaskedInput from "react-input-mask";
@@ -43,11 +43,20 @@ const siderStyle: React.CSSProperties = {
 const Sidebar: React.FC<Props> = ({ user }) => {
   const location = useLocation();
   // const userUpdate = useUpdate(`user/${user.id}`);
-  const [, , removeCookie] = useCookies(["token", "phone"]);
+  const [, , removeCookie] = useCookies([
+    "token",
+    "phone",
+    "basic",
+    "role",
+    "email",
+  ]);
   const navigate = useNavigate();
   const handlerLogOut = () => {
     removeCookie("phone");
     removeCookie("token");
+    removeCookie("basic");
+    removeCookie("role");
+    removeCookie("email");
     navigate("/login");
   };
   // const [form] = Form.useForm();
@@ -154,7 +163,7 @@ const Sidebar: React.FC<Props> = ({ user }) => {
         defaultSelectedKeys={["0"]}
         className={classes.menu}
       >
-        {routes?.map((item, index) => (
+        {MyRoutes()?.map((item, index) => (
           <Button
             href={item.path}
             className={classes.menu__link}

@@ -5,12 +5,13 @@ import { useCookies } from "react-cookie";
 import { url } from "../helpers";
 
 const useGetById = (urlPath: string, options?: MutationOptions) => {
-  const [cookie] = useCookies(["token"]);
+  const [cookie] = useCookies(["token", "basic"]);
   return useMutation(
     (id) =>
       Instance.get(`${url}/${urlPath}/${id}`, {
         headers: {
           Authorization: cookie.token,
+          basic: cookie.basic,
         },
       }),
     options

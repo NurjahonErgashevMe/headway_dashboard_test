@@ -16,8 +16,10 @@
     "@tanstack/react-query-devtools": "^4.35.7",
     "antd": "^5.9.4",
     "axios": "^1.5.1",
+    "basic-auth-token": "^0.4.2",
     "classnames": "^2.3.2",
     "i": "^0.3.7",
+    "js-base64": "^3.7.5",
     "npm": "^10.1.0",
     "react": "^18.2.0",
     "react-cookie": "^6.1.1",
@@ -30,6 +32,7 @@
     "zustand": "^4.4.2"
   },
   "devDependencies": {
+    "@types/node": "^20.8.9",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-input-mask": "^3.0.3",

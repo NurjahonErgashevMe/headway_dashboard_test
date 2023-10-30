@@ -19,6 +19,7 @@ import useDelete from "../../hooks/useDelete";
 import { Popconfirm, message } from "antd";
 import { UserTypes as UserType } from "../../types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserRoles } from "../../enums";
 // import Update from "./Forms/Update";
 type Props = {
   data: UserType[];
@@ -109,7 +110,9 @@ const UserTable: React.FC<Props> = ({ data }) => {
         <Column
           key={"role"}
           title={"Roli"}
-          render={(record: UserType) => <Tag color="red">{record.role}</Tag>}
+          render={(record: UserType) => (
+            <Tag color={UserRoles[record.role].toLowerCase() === "admin" ? "green" : "red"}>{UserRoles[record.role]}</Tag>
+          )}
         ></Column>
         <Column
           key={"status"}

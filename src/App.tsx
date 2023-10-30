@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Navigate, Route, Routes } from "react-router-dom";
-import routes from "./route/Routes";
 import Login from "./pages/Login";
 import CustomLayout from "./components/Layout";
 import { useCookies } from "react-cookie";
+import NotFound from "./pages/NotFound";
+import MyRoutes from "./route/Routes";
 
 function App() {
   const [cookies] = useCookies(["token"]);
   return (
     <Routes>
-      {routes?.map(({ Component, ...item }, index) => (
+      {MyRoutes()?.map(({ Component, ...item }, index) => (
         <Route
           path={item.path}
           index={item.index}
@@ -26,6 +27,7 @@ function App() {
         ></Route>
       ))}
       <Route path="/login" element={<Login />}></Route>
+      <Route path="*" element={<NotFound />}></Route>
     </Routes>
   );
 }
